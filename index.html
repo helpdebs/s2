@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🔬 Failure Dossier – Corrosion Case Training</title>
   <style>
     * {
@@ -26,7 +26,7 @@
       background: #ffffff;
       border-radius: 36px;
       padding: 28px 24px;
-      box-shadow: 0 20px 40px -12px rgba(0,20,40,0.20);
+      box-shadow: 0 20px 40px -12px rgba(0, 20, 40, 0.20);
       transition: padding 0.2s;
     }
     header {
@@ -79,7 +79,10 @@
       gap: 6px;
       white-space: nowrap;
     }
-    .download-btn:hover { background: #1c5a3b; transform: scale(0.97); }
+    .download-btn:hover {
+      background: #1c5a3b;
+      transform: scale(0.97);
+    }
     .audio-box {
       background: #f0f5fe;
       border-radius: 20px;
@@ -102,18 +105,46 @@
       align-items: center;
       gap: 6px;
     }
+    .audio-player {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .audio-player audio {
+      width: 100%;
+      height: 40px;
+      border-radius: 8px;
+      outline: none;
+    }
     .audio-actions {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
+      margin-top: 8px;
     }
-    audio {
-      width: 100%;
-      max-width: 400px;
-      height: 32px;
-      margin-top: 12px;
-      border-radius: 8px;
+    .speech-btn {
+      background: #4a7a9c;
+      border: none;
+      border-radius: 40px;
+      padding: 8px 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speech-btn:hover {
+      background: #2f5f7e;
+    }
+    .speech-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .speech-btn.playing {
+      background: #c0392b;
     }
     .transcript-toggle {
       background: #e3edf9;
@@ -126,8 +157,13 @@
       cursor: pointer;
       transition: 0.15s;
     }
-    .transcript-toggle:hover { background: #cbddec; }
-    .transcript-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
+    .transcript-toggle:hover {
+      background: #cbddec;
+    }
+    .transcript-toggle:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
     .transcript-box {
       background: #ffffff;
       border-radius: 16px;
@@ -150,7 +186,9 @@
       margin-top: 8px;
       display: none;
     }
-    .audio-error.show { display: block; }
+    .audio-error.show {
+      display: block;
+    }
     nav[aria-label="Level navigation"] {
       display: flex;
       gap: 10px;
@@ -184,8 +222,8 @@
       transform: none;
       box-shadow: none;
     }
-    .gate-btn.locked { 
-      opacity: 0.6; 
+    .gate-btn.locked {
+      opacity: 0.6;
       cursor: not-allowed;
       position: relative;
     }
@@ -252,7 +290,10 @@
       transition: 0.1s;
       cursor: pointer;
     }
-    .opt:hover { background: #edf4fe; border-color: #b0cbe5; }
+    .opt:hover {
+      background: #edf4fe;
+      border-color: #b0cbe5;
+    }
     .opt input[type="radio"] {
       width: 18px;
       height: 18px;
@@ -275,8 +316,14 @@
       font-size: 0.92rem;
       color: #15344f;
     }
-    .feedback.correct { border-left-color: #1d8b4f; background: #e6f5ed; }
-    .feedback.wrong { border-left-color: #b13e3e; background: #fdeeec; }
+    .feedback.correct {
+      border-left-color: #1d8b4f;
+      background: #e6f5ed;
+    }
+    .feedback.wrong {
+      border-left-color: #b13e3e;
+      background: #fdeeec;
+    }
     .btn-action {
       background: #1d5a81;
       border: none;
@@ -290,8 +337,14 @@
       margin-top: 6px;
       box-shadow: 0 6px 12px -6px rgba(18, 67, 112, 0.25);
     }
-    .btn-action:hover { background: #13456a; transform: scale(0.98); }
-    .btn-action:disabled { opacity: 0.5; pointer-events: none; }
+    .btn-action:hover {
+      background: #13456a;
+      transform: scale(0.98);
+    }
+    .btn-action:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
     .free-textarea {
       width: 100%;
       border-radius: 20px;
@@ -310,12 +363,9 @@
       margin-bottom: 12px;
       font-size: 0.95rem;
     }
-    .level-status {
-      font-size: 0.85rem;
-      color: #38658b;
-      margin-left: 8px;
+    .hidden {
+      display: none !important;
     }
-    .hidden { display: none !important; }
     .footer-note {
       margin-top: 22px;
       font-size: 0.85rem;
@@ -325,34 +375,103 @@
       text-align: center;
     }
     @media (max-width: 768px) {
-      .card { padding: 20px 16px; border-radius: 28px; }
-      h1 { font-size: 1.4rem; }
-      .header-actions { width: 100%; justify-content: flex-start; }
-      .download-btn { font-size: 0.8rem; padding: 8px 16px; }
-      .gate-btn { font-size: 0.8rem; padding: 8px 12px; min-width: 90px; }
-      .task-item { padding: 14px 14px 18px; }
-      .task-title { font-size: 0.95rem; }
-      .opt { padding: 6px 12px; gap: 10px; }
-      .opt label { font-size: 0.88rem; }
-      .audio-label { font-size: 0.85rem; }
-      .audio-actions { width: 100%; justify-content: flex-start; }
+      .card {
+        padding: 20px 16px;
+        border-radius: 28px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .download-btn {
+        font-size: 0.8rem;
+        padding: 8px 16px;
+      }
+      .gate-btn {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+        min-width: 90px;
+      }
+      .task-item {
+        padding: 14px 14px 18px;
+      }
+      .task-title {
+        font-size: 0.95rem;
+      }
+      .opt {
+        padding: 6px 12px;
+        gap: 10px;
+      }
+      .opt label {
+        font-size: 0.88rem;
+      }
+      .audio-label {
+        font-size: 0.85rem;
+      }
+      .audio-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
     @media (max-width: 480px) {
-      body { padding: 10px; }
-      .card { padding: 14px 12px; border-radius: 24px; }
-      h1 { font-size: 1.2rem; }
-      .badge-level { font-size: 0.65rem; padding: 2px 10px; }
-      .gate-btn { font-size: 0.7rem; padding: 6px 8px; min-width: 70px; }
-      .task-title { font-size: 0.9rem; flex-direction: column; align-items: flex-start; gap: 4px; }
-      .opt { padding: 4px 10px; gap: 8px; }
-      .opt label { font-size: 0.82rem; }
-      .btn-action { padding: 10px 18px; font-size: 0.85rem; width: 100%; }
-      .free-textarea { min-height: 60px; font-size: 0.85rem; }
-      .audio-box { padding: 12px 10px; }
-      audio { margin-top: 8px; }
-      .transcript-box { font-size: 0.82rem; padding: 12px; }
-      .download-btn { font-size: 0.7rem; padding: 6px 12px; }
-      .footer-note { font-size: 0.75rem; }
+      body {
+        padding: 10px;
+      }
+      .card {
+        padding: 14px 12px;
+        border-radius: 24px;
+      }
+      h1 {
+        font-size: 1.2rem;
+      }
+      .badge-level {
+        font-size: 0.65rem;
+        padding: 2px 10px;
+      }
+      .gate-btn {
+        font-size: 0.7rem;
+        padding: 6px 8px;
+        min-width: 70px;
+      }
+      .task-title {
+        font-size: 0.9rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .opt {
+        padding: 4px 10px;
+        gap: 8px;
+      }
+      .opt label {
+        font-size: 0.82rem;
+      }
+      .btn-action {
+        padding: 10px 18px;
+        font-size: 0.85rem;
+        width: 100%;
+      }
+      .free-textarea {
+        min-height: 60px;
+        font-size: 0.85rem;
+      }
+      .audio-box {
+        padding: 12px 10px;
+      }
+      .transcript-box {
+        font-size: 0.82rem;
+        padding: 12px;
+      }
+      .download-btn {
+        font-size: 0.7rem;
+        padding: 6px 12px;
+      }
+      .footer-note {
+        font-size: 0.75rem;
+      }
     }
   </style>
 </head>
@@ -368,33 +487,39 @@
       </div>
     </header>
 
+    <!-- AUDIO BOX com player e transcrição -->
     <section class="audio-box" aria-label="Case audio">
       <div class="audio-controls">
         <span class="audio-label">🎙️ Heat exchanger failure – case audio</span>
       </div>
-      <!-- Real audio player -->
-      <audio id="caseAudio" controls preload="metadata" aria-label="Heat exchanger failure case audio">
-        <source src="case-audio.mp3" type="audio/mpeg">
-        Your browser does not support the audio element. Please update your browser.
-      </audio>
-      <div id="audioError" class="audio-error">
-        ⚠️ Audio file not found. Make sure "case-audio.mp3" is uploaded to the same directory.
+      <!-- Player com o arquivo case-audio.mp3 -->
+      <div class="audio-player">
+        <audio id="caseAudio" controls preload="metadata" aria-label="Heat exchanger failure case audio">
+          <source src="case-audio.mp3" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
       </div>
-      <div class="audio-actions" style="margin-top: 12px;">
+      <div id="audioError" class="audio-error">
+        ⚠️ Audio file not found. Please use the "Listen" button below for text-to-speech, or read the transcript.
+      </div>
+      <div class="audio-actions">
+        <button class="speech-btn" id="speechBtn" aria-label="Listen to case audio via text-to-speech">🔊 Listen (TTS)</button>
         <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false" aria-controls="transcriptContainer">📄 Show transcript</button>
       </div>
       <div id="transcriptContainer" class="transcript-box hidden" role="region" aria-live="polite">
         <strong>📍 Full transcript (Level 1):</strong><br>
-        "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn't inform us. At first, I thought it was pitting corrosion due to chlorides. But it turned out that the real issue was caused by a combination of higher flow velocity and low pH. Long story short, the corrosion rate increased by 40%. I ended up re-running the whole root cause analysis. In the end, we realized that better communication with the client would have prevented this."
+        “The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40%. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.”
       </div>
     </section>
 
+    <!-- LEVEL NAVIGATION -->
     <nav aria-label="Level navigation">
       <button class="gate-btn active" data-level="1" id="level1Btn" aria-current="step">📋 Level 1 · Record</button>
       <button class="gate-btn locked" data-level="2" id="level2Btn" disabled aria-current="false">🔍 Level 2 · Investigation</button>
       <button class="gate-btn locked" data-level="3" id="level3Btn" disabled aria-current="false">📊 Level 3 · Final Report</button>
     </nav>
 
+    <!-- TASK CONTAINER -->
     <section id="taskContainer" class="task-area" aria-label="Training tasks">
       <!-- dynamically rendered -->
     </section>
@@ -406,176 +531,226 @@
 
   <script>
     (function() {
-      // ===== AUDIO ELEMENT HANDLING =====
+      // ============================================================
+      // 1. AUDIO: fallback Text-to-Speech se o MP3 falhar
+      // ============================================================
       const audioElement = document.getElementById('caseAudio');
       const audioError = document.getElementById('audioError');
+      const speechBtn = document.getElementById('speechBtn');
+      let speechSynth = window.speechSynthesis;
+      let utterance = null;
 
+      // Transcript para TTS
+      const transcriptText =
+        "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn't inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40 percent. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client's specs. In the end, we realized that we need mitigation measures and better communication. I'm used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.";
+
+      // Se o áudio MP3 falhar, mostra erro e habilita TTS
       audioElement.addEventListener('error', function() {
         audioError.classList.add('show');
+        speechBtn.disabled = false;
       });
 
-      // ===== TASK DATA =====
+      // Se carregar com sucesso, esconde erro
+      audioElement.addEventListener('loadeddata', function() {
+        audioError.classList.remove('show');
+        speechBtn.disabled = false; // TTS ainda fica disponível como opção
+      });
+
+      // Verifica se o navegador suporta TTS
+      if (!window.speechSynthesis) {
+        speechBtn.disabled = true;
+        speechBtn.title = 'Text-to-speech not supported in this browser.';
+      }
+
+      // Botão TTS
+      speechBtn.addEventListener('click', function() {
+        if (speechSynth.speaking) {
+          speechSynth.cancel();
+          this.textContent = '🔊 Listen (TTS)';
+          this.classList.remove('playing');
+          return;
+        }
+        try {
+          utterance = new SpeechSynthesisUtterance(transcriptText);
+          utterance.lang = 'en-US';
+          utterance.rate = 0.85;
+          utterance.pitch = 1;
+          utterance.onstart = function() {
+            speechBtn.textContent = '⏹ Stop (TTS)';
+            speechBtn.classList.add('playing');
+            audioError.classList.remove('show');
+          };
+          utterance.onend = function() {
+            speechBtn.textContent = '🔊 Listen (TTS)';
+            speechBtn.classList.remove('playing');
+          };
+          utterance.onerror = function(e) {
+            speechBtn.textContent = '🔊 Listen (TTS)';
+            speechBtn.classList.remove('playing');
+            audioError.textContent = '⚠️ TTS error: ' + e.error + '. Please use the audio player above.';
+            audioError.classList.add('show');
+          };
+          speechSynth.speak(utterance);
+        } catch (e) {
+          audioError.textContent = '⚠️ Error: ' + e.message;
+          audioError.classList.add('show');
+          speechBtn.textContent = '🔊 Listen (TTS)';
+          speechBtn.classList.remove('playing');
+        }
+      });
+
+      // ============================================================
+      // 2. TASK DATA (todos os níveis)
+      // ============================================================
       const tasksData = {
-        1: [
-          {
-            id: '1a',
-            title: 'General comprehension',
-            description: 'What was the main problem?',
-            options: [
-              'The client changed the specification without notice.',
-              'Power supply failure.',
-              'Corrosion engineer miscalculation.'
-            ],
-            correct: 0,
-            feedback: '✅ Correct! The client changed the operating temperature without informing, as in the audio: "the client changed the operating temperature, but they didn't inform us."'
-          },
-          {
-            id: '1b',
-            title: 'Vocabulary & chunks',
-            description: 'In the audio, the engineer uses an expression to summarise the story. Which one?',
-            options: [
-              '"To fall flat on your face"',
-              '"Long story short"',
-              '"Beat your head against a brick wall"'
-            ],
-            correct: 1,
-            feedback: '✅ Exactly! She says "Long story short, the corrosion rate increased by 40%." – a typical summarising phrase.'
-          },
-          {
-            id: '1c',
-            title: 'Situation → Trigger sentence',
-            description: 'You need to explain that the client changed the operating parameters without prior communication. Which chunk fits best?',
-            options: [
-              '"The thing is, the client modified the parameters without telling us."',
-              '"I was supposed to check the parameters, but I forgot."',
-              '"Long story short, the parameters were wrong."'
-            ],
-            correct: 0,
-            feedback: '✅ "The thing is..." is perfect to introduce the real point behind the situation. It matches the context.'
-          },
-          {
-            id: '1d',
-            title: 'Trigger sentence → Situation',
-            description: 'You say: "I ended up re-running the whole analysis." What situation does this typically describe?',
-            options: [
-              'You planned to do something else, but circumstances forced you to redo the analysis.',
-              'You finished the analysis on time and celebrated.',
-              'You decided to start a new project instead.'
-            ],
-            correct: 0,
-            feedback: '✅ "Ended up" expresses an unplanned outcome. You had to redo the analysis because of difficulties.'
-          }
-        ],
-        2: [
-          {
-            id: '2a',
-            title: 'Cause identification',
-            description: 'What did the engineer discover as the real cause of the failure? (audio)',
-            options: [
-              'Pitting corrosion due to chlorides.',
-              'Combination of higher flow velocity and low pH.',
-              'Manufacturing material issue.'
-            ],
-            correct: 1,
-            feedback: '🎯 Correct! She states: "It turned out that the real issue was caused by a combination of higher flow velocity and low pH."'
-          },
-          {
-            id: '2b',
-            title: 'Expression interpretation',
-            description: 'She said: "I ended up re-running the whole root cause analysis." What does "ended up" mean in this context?',
-            options: [
-              'She finished the work on time.',
-              'She did something that was not originally planned.',
-              'She gave up on the analysis.'
-            ],
-            correct: 1,
-            feedback: '✔️ "Ended up" indicates an unplanned outcome. She had to redo the analysis due to difficulties.'
-          },
-          {
-            id: '2c',
-            title: 'Situation → Trigger sentence',
-            description: 'You discovered that the real issue was caused by low pH combined with high velocity. Which sentence best introduces this finding?',
-            options: [
-              '"It turned out that the real issue was caused by low pH and high velocity."',
-              '"At first, I thought it was low pH, but it was high velocity."',
-              '"The thing is, the pH was low and the velocity was high."'
-            ],
-            correct: 0,
-            feedback: '✅ "It turned out that..." is the precise chunk to present a discovery that contradicts the initial assumption.'
-          },
-          {
-            id: '2d',
-            title: 'Trigger sentence → Situation',
-            description: 'You say: "At first, I thought it was pitting corrosion due to chlorides." What does this imply?',
-            options: [
-              'Your initial hypothesis was pitting, but later you found something else.',
-              'You are certain that pitting corrosion was the cause.',
-              'You have no idea what caused the failure.'
-            ],
-            correct: 0,
-            feedback: '✅ "At first, I thought..." clearly signals an initial hypothesis that may have changed later.'
-          }
-        ],
-        3: [
-          {
-            id: '3a',
-            title: 'Transfer – technical report',
-            description: 'Transform the informal phrase into a technical tone: "What happened was the client changed the spec at the last minute."',
-            free: true,
-            feedback: '📝 Suggestion: "The failure was first identified when the client changed the specification without prior notification." – aim for formal register.'
-          },
-          {
-            id: '3b',
-            title: 'Use of "tell" vs "say"',
-            description: 'In the audio she says: "They told me that the failure mechanism was stress corrosion cracking." Why "told" and not "said"?',
-            options: [
-              'Because "tell" requires an indirect object (me) – it's correct.',
-              'Because "said" would only be used for direct speech.',
-              'Both are correct, but "told" is more formal.'
-            ],
-            correct: 0,
-            feedback: '✅ Perfect! "Tell someone" requires the object (me, him, etc.). "Say" does not take a direct personal object. E.g., She told me vs She said that...'
-          },
-          {
-            id: '3c',
-            title: 'Situation → Technical trigger',
-            description: 'You need to report that limited data made the analysis difficult. Which technical phrase fits best?',
-            options: [
-              '"A key challenge in the analysis was the limited historical data."',
-              '"The thing is, we had no data."',
-              '"I ended up with no data to analyze."'
-            ],
-            correct: 0,
-            feedback: '✅ "A key challenge in the analysis was..." is the formal register from section 7. Perfect for reports.'
-          },
-          {
-            id: '3d',
-            title: 'Technical trigger → Situation',
-            description: 'You write: "The findings indicate that the corrosion rate exceeded the predicted values." What situation does this describe?',
-            options: [
-              'The results show that corrosion was worse than expected.',
-              'The corrosion rate was exactly as predicted.',
-              'There were no findings to report.'
-            ],
-            correct: 0,
-            feedback: '✅ "The findings indicate that..." is a formal way to present results. It shows that corrosion was higher than expected.'
-          },
-          {
-            id: '3e',
-            title: 'Final transformation – conversation → report',
-            description: 'Rewrite the sentence below in a technical report style, using at least one chunk from section 7 of the material.\n\n"Long story short, the corrosion rate was higher than expected."',
-            free: true,
-            feedback: '💡 Example: "The findings indicate that the corrosion rate exceeded the predicted values, requiring immediate mitigation measures." – use "findings indicate" or "the report concludes".'
-          }
-        ]
+        1: [{
+          id: '1a',
+          title: 'General comprehension',
+          description: 'What was the main problem?',
+          options: [
+            'The client changed the specification without notice.',
+            'Power supply failure.',
+            'Corrosion engineer miscalculation.'
+          ],
+          correct: 0,
+          feedback: '✅ Correct! The client changed the operating temperature without informing, as in the audio: "the client changed the operating temperature, but they didn\'t inform us."'
+        }, {
+          id: '1b',
+          title: 'Vocabulary & chunks',
+          description: 'In the audio, the engineer uses an expression to summarise the story. Which one?',
+          options: [
+            '"To fall flat on your face"',
+            '"Long story short"',
+            '"Beat your head against a brick wall"'
+          ],
+          correct: 1,
+          feedback: '✅ Exactly! She says "Long story short, the corrosion rate increased by 40%." – a typical summarising phrase.'
+        }, {
+          id: '1c',
+          title: 'Situation → Trigger sentence',
+          description: 'You need to explain that the client changed the operating parameters without prior communication. Which chunk fits best?',
+          options: [
+            '"The thing is, the client modified the parameters without telling us."',
+            '"I was supposed to check the parameters, but I forgot."',
+            '"Long story short, the parameters were wrong."'
+          ],
+          correct: 0,
+          feedback: '✅ "The thing is..." is perfect to introduce the real point behind the situation. It matches the context.'
+        }, {
+          id: '1d',
+          title: 'Trigger sentence → Situation',
+          description: 'You say: "I ended up re-running the whole analysis." What situation does this typically describe?',
+          options: [
+            'You planned to do something else, but circumstances forced you to redo the analysis.',
+            'You finished the analysis on time and celebrated.',
+            'You decided to start a new project instead.'
+          ],
+          correct: 0,
+          feedback: '✅ "Ended up" expresses an unplanned outcome. You had to redo the analysis because of difficulties.'
+        }],
+        2: [{
+          id: '2a',
+          title: 'Cause identification',
+          description: 'What did the engineer discover as the real cause of the failure? (audio)',
+          options: [
+            'Pitting corrosion due to chlorides.',
+            'Combination of higher flow velocity and low pH.',
+            'Manufacturing material issue.'
+          ],
+          correct: 1,
+          feedback: '🎯 Correct! She states: "It turned out that the real issue was caused by a combination of higher flow velocity and low pH."'
+        }, {
+          id: '2b',
+          title: 'Expression interpretation',
+          description: 'She said: "I ended up re-running the whole root cause analysis." What does "ended up" mean in this context?',
+          options: [
+            'She finished the work on time.',
+            'She did something that was not originally planned.',
+            'She gave up on the analysis.'
+          ],
+          correct: 1,
+          feedback: '✔️ "Ended up" indicates an unplanned outcome. She had to redo the analysis due to difficulties.'
+        }, {
+          id: '2c',
+          title: 'Situation → Trigger sentence',
+          description: 'You discovered that the real issue was caused by low pH combined with high velocity. Which sentence best introduces this finding?',
+          options: [
+            '"It turned out that the real issue was caused by low pH and high velocity."',
+            '"At first, I thought it was low pH, but it was high velocity."',
+            '"The thing is, the pH was low and the velocity was high."'
+          ],
+          correct: 0,
+          feedback: '✅ "It turned out that..." is the precise chunk to present a discovery that contradicts the initial assumption.'
+        }, {
+          id: '2d',
+          title: 'Trigger sentence → Situation',
+          description: 'You say: "At first, I thought it was pitting corrosion due to chlorides." What does this imply?',
+          options: [
+            'Your initial hypothesis was pitting, but later you found something else.',
+            'You are certain that pitting corrosion was the cause.',
+            'You have no idea what caused the failure.'
+          ],
+          correct: 0,
+          feedback: '✅ "At first, I thought..." clearly signals an initial hypothesis that may have changed later.'
+        }],
+        3: [{
+          id: '3a',
+          title: 'Transfer – technical report',
+          description: 'Transform the informal phrase into a technical tone: "What happened was the client changed the spec at the last minute."',
+          free: true,
+          feedback: '📝 Suggestion: "The failure was first identified when the client changed the specification without prior notification." – aim for formal register.'
+        }, {
+          id: '3b',
+          title: 'Use of "tell" vs "say"',
+          description: 'In the audio she says: "They told me that the failure mechanism was stress corrosion cracking." Why "told" and not "said"?',
+          options: [
+            'Because "tell" requires an indirect object (me) – it\'s correct.',
+            'Because "said" would only be used for direct speech.',
+            'Both are correct, but "told" is more formal.'
+          ],
+          correct: 0,
+          feedback: '✅ Perfect! "Tell someone" requires the object (me, him, etc.). "Say" does not take a direct personal object. E.g., She told me vs She said that...'
+        }, {
+          id: '3c',
+          title: 'Situation → Technical trigger',
+          description: 'You need to report that limited data made the analysis difficult. Which technical phrase fits best?',
+          options: [
+            '"A key challenge in the analysis was the limited historical data."',
+            '"The thing is, we had no data."',
+            '"I ended up with no data to analyze."'
+          ],
+          correct: 0,
+          feedback: '✅ "A key challenge in the analysis was..." is the formal register from section 7. Perfect for reports.'
+        }, {
+          id: '3d',
+          title: 'Technical trigger → Situation',
+          description: 'You write: "The findings indicate that the corrosion rate exceeded the predicted values." What situation does this describe?',
+          options: [
+            'The results show that corrosion was worse than expected.',
+            'The corrosion rate was exactly as predicted.',
+            'There were no findings to report.'
+          ],
+          correct: 0,
+          feedback: '✅ "The findings indicate that..." is a formal way to present results. It shows that corrosion was higher than expected.'
+        }, {
+          id: '3e',
+          title: 'Final transformation – conversation → report',
+          description: 'Rewrite the sentence below in a technical report style, using at least one chunk from section 7 of the material.\n\n"Long story short, the corrosion rate was higher than expected."',
+          free: true,
+          feedback: '💡 Example: "The findings indicate that the corrosion rate exceeded the predicted values, requiring immediate mitigation measures." – use "findings indicate" or "the report concludes".'
+        }]
       };
 
-      // ===== STATE =====
+      // ============================================================
+      // 3. STATE
+      // ============================================================
       let currentLevel = 1;
       const levelUnlocked = { 1: true, 2: false, 3: false };
       const levelCompleted = { 1: false, 2: false, 3: false };
 
-      // ===== DOM REFS =====
+      // ============================================================
+      // 4. DOM REFS
+      // ============================================================
       const taskContainer = document.getElementById('taskContainer');
       const levelBtns = {
         1: document.getElementById('level1Btn'),
@@ -586,7 +761,9 @@
       const toggleTranscriptBtn = document.getElementById('toggleTranscriptBtn');
       const transcriptContainer = document.getElementById('transcriptContainer');
 
-      // ===== TRANSCRIPT CONTROL =====
+      // ============================================================
+      // 5. TRANSCRIPT TOGGLE
+      // ============================================================
       let transcriptVisible = false;
       toggleTranscriptBtn.addEventListener('click', function() {
         transcriptVisible = !transcriptVisible;
@@ -595,11 +772,13 @@
         this.setAttribute('aria-expanded', transcriptVisible);
       });
 
-      // ===== RENDER TASKS =====
+      // ============================================================
+      // 6. RENDER TASKS
+      // ============================================================
       function renderTasks(level) {
         const tasks = tasksData[level] || [];
         if (!tasks.length) {
-          taskContainer.innerHTML = `<div class="task-item">No tasks for this level.</div>`;
+          taskContainer.innerHTML = '<div class="task-item">No tasks for this level.</div>';
           return;
         }
 
@@ -668,7 +847,8 @@
               } else {
                 const val = parseInt(selected.value);
                 isCorrect = (val === taskDef.correct);
-                msg = isCorrect ? (taskDef.feedback || '✅ Correct!') : `❌ Not quite. ${taskDef.feedback || 'Review the audio or transcript.'}`;
+                msg = isCorrect ? (taskDef.feedback || '✅ Correct!') :
+                  `❌ Not quite. ${taskDef.feedback || 'Review the audio or transcript.'}`;
               }
             }
 
@@ -708,7 +888,9 @@
         });
       }
 
-      // ===== UPDATE LEVEL BUTTONS =====
+      // ============================================================
+      // 7. UPDATE LEVEL BUTTONS
+      // ============================================================
       function updateLevelButtons() {
         for (let lv = 1; lv <= 3; lv++) {
           const btn = levelBtns[lv];
@@ -717,11 +899,14 @@
           btn.disabled = !unlocked;
           if (unlocked) {
             btn.classList.remove('locked');
-            const label = lv === 1 ? '📋 Level 1 · Record' : lv === 2 ? '🔍 Level 2 · Investigation' : '📊 Level 3 · Final Report';
+            const label = lv === 1 ? '📋 Level 1 · Record' :
+              lv === 2 ? '🔍 Level 2 · Investigation' :
+              '📊 Level 3 · Final Report';
             btn.innerHTML = label + (levelCompleted[lv] ? ' ✅' : '');
           } else {
             btn.classList.add('locked');
-            const label = lv === 2 ? '🔒 Level 2 · Investigation' : '🔒 Level 3 · Final Report';
+            const label = lv === 2 ? '🔒 Level 2 · Investigation' :
+              '🔒 Level 3 · Final Report';
             btn.innerHTML = label;
           }
           if (lv === currentLevel && unlocked) {
@@ -735,13 +920,16 @@
         currentLevelDisplay.textContent = currentLevel;
       }
 
-      // ===== SWITCH LEVEL =====
+      // ============================================================
+      // 8. SWITCH LEVEL
+      // ============================================================
       function switchLevel(level) {
         if (!levelUnlocked[level] && level !== 1) return;
         currentLevel = level;
         updateLevelButtons();
         renderTasks(level);
 
+        // Transcript behaviour per level
         if (level === 1) {
           transcriptContainer.classList.remove('hidden');
           toggleTranscriptBtn.textContent = '📄 Hide transcript';
@@ -749,12 +937,12 @@
           toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
           toggleTranscriptBtn.disabled = false;
           transcriptContainer.innerHTML = `<strong>📍 Full transcript (Level 1):</strong><br>
-            "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn't inform us. At first, I thought it was pitting corrosion due to chlorides. But it turned out that the real issue was caused by a combination of higher flow velocity and low pH. Long story short, the corrosion rate increased by 40%. I ended up re-running the whole root cause analysis. In the end, we realized that better communication with the client would have prevented this."`;
+            “The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40%. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.”`;
         } else if (level === 2) {
           transcriptContainer.innerHTML = `<strong>🔎 Evidence excerpts (Level 2):</strong><br>
-            • "the client changed the operating temperature"<br>
-            • "It turned out that the real issue was caused by a combination..."<br>
-            • "I ended up re-running the whole root cause analysis."`;
+            • “the client changed the operating temperature”<br>
+            • “It turned out that the real issue was caused by a combination...”<br>
+            • “I ended up re-running the whole root cause analysis.”`;
           transcriptContainer.classList.remove('hidden');
           toggleTranscriptBtn.textContent = '📄 Show excerpts';
           transcriptVisible = true;
@@ -770,12 +958,16 @@
         }
       }
 
-      // ===== EVENT LISTENERS =====
+      // ============================================================
+      // 9. EVENT LISTENERS
+      // ============================================================
       levelBtns[1].addEventListener('click', function() { if (!this.disabled) switchLevel(1); });
       levelBtns[2].addEventListener('click', function() { if (!this.disabled) switchLevel(2); });
       levelBtns[3].addEventListener('click', function() { if (!this.disabled) switchLevel(3); });
 
-      // ===== INIT =====
+      // ============================================================
+      // 10. INIT
+      // ============================================================
       function init() {
         levelUnlocked[1] = true;
         updateLevelButtons();
@@ -783,36 +975,205 @@
       }
       init();
 
-      // ===== DOWNLOAD SUMMARY =====
+      // ============================================================
+      // 11. DOWNLOAD SUMMARY (exact PDF content)
+      // ============================================================
       document.getElementById('downloadSummaryBtn').addEventListener('click', function() {
         const summary = `===== GUIA RESUMO DO MÊS - SITUAÇÕES PARA REPORTS =====
 
 Como contar o que aconteceu de forma clara, natural e profissional em inglês
 
-Este guia reúne tudo o que foi trabalhado nas últimas aulas — expressões, correções gramaticais, idioms e a estrutura de storytelling — e conecta cada ponto com uma habilidade que você usa todos os dias.
+Este guia reúne tudo o que foi trabalhado nas últimas aulas — expressões, correções gramaticais, idioms e a estrutura de storytelling — e conecta cada ponto com uma habilidade que você usa todo dia no trabalho: transformar uma situação (um problema, uma falha, um mal-entendido) em uma explicação clara, seja numa conversa, numa apresentação ou num report técnico.
 
-Como você é engenheira metalúrgica especializada em corrosão, sempre que possível trouxemos exemplos ligados à sua área — laudos, RCA (root cause analysis), reports de falha — para que a prática seja prática mesmo.
+Como você é engenheira metalúrgica especializada em corrosão, sempre que possível trouxemos exemplos ligados à sua área — laudos, RCA (root cause analysis), reports de falha — para que a prática de inglês se torne também prática de comunicação profissional.
 
 ## 1. O que foi trabalhado nesse mês
 
 O fio condutor das aulas foi um só: como transformar uma situação confusa ou informal em uma narrativa organizada e natural em inglês. Isso apareceu em quatro frentes:
 
-• Chunks / conectores para contar uma história com clareza ("the thing is...", "what happened was...", etc.)
-• Erros típicos de tradução literal do português para o inglês ("Brazilian Brain Detox")
-• Correções gramaticais recorrentes nas suas frases (reported speech, verbos irregulares, concordância)
-• Expressões idiomáticas para descrever dificuldades e reações
-• Uma estrutura fixa — "From Conversation to Report" — para organizar qualquer situação em 6 partes
+•	 Chunks / conectores para contar uma história com clareza ("the thing is...", "what happened was...", etc.)
+•	 Erros típicos de tradução literal do português para o inglês ("Brazilian Brain Detox")
+•	 Correções gramaticais recorrentes nas suas frases (reported speech, verbos irregulares, concordância)
+•	 Expressões idiomáticas para descrever dificuldades e reações
+•	 Uma estrutura fixa — "From Conversation to Report" — para organizar qualquer situação em 6 partes
 
----
+## 2. Chunks para contar uma situação
 
-Baixado em: ${new Date().toLocaleString()}
-`;
-        const el = document.createElement('a');
-        el.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(summary);
-        el.download = 'Failure_Dossier_Summary.txt';
-        el.click();
+Essas expressões são o esqueleto de qualquer relato — pessoal ou profissional. Use-as para estruturar a fala antes mesmo de pensar em vocabulário mais específico.
+
+Expressão: The thing is...
+Quando usar: Explicar o ponto real por trás da situação
+Exemplo: The thing is, I didn't have all the information yet.
+
+Expressão: What happened was...
+Quando usar: Explicar a situação com mais clareza
+Exemplo: What happened was the client changed the spec at the last minute.
+
+Expressão: I was supposed to..., but...
+Quando usar: Mostrar que havia um plano, mas algo mudou
+Exemplo: I was supposed to send the report by Friday, but the data was incomplete.
+
+Expressão: I ended up...
+Quando usar: Mostrar que o resultado final foi diferente do esperado
+Exemplo: I ended up re-running the whole analysis.
+
+Expressão: Long story short...
+Quando usar: Resumir a história antes de concluir
+Exemplo: Long story short, the corrosion rate was higher than expected.
+
+## 3. "Brazilian Brain Detox": tradução literal a evitar
+
+Em vez de (tradução literal) → Use → Ideia em português
+take a doubt → clear something up / ask a question → tirar uma dúvida
+mark a meeting → schedule a meeting / set up a meeting → marcar uma reunião
+combine to do something → agree to do something / make plans to do something → combinar de fazer algo
+make sense for me → make sense to me → fazer sentido pra mim
+open a parenthesis → as a side note / by the way → abrir um parêntese
+stay without way → feel awkward → ficar sem jeito
+carry it to the personal side → take it personally → levar para o pessoal
+create expectation → get your hopes up / build expectations → criar expectativa
+make drama → make a big deal out of it → fazer drama
+resuming... → long story short... → resumindo
+
+## 4. Correções gramaticais praticadas
+
+Erro comum: She said me that... → Versão correta: She told me... → Ponto de atenção: "say" não leva objeto direto de pessoa; use "tell someone"
+Erro comum: I was with a doubt → Versão correta: I had a doubt / I wasn't sure → Ponto de atenção: "be with a doubt" não existe em inglês
+Erro comum: I don't have how to know → Versão correta: I have no way of knowing / I can't know → tradução literal de "não tenho como"
+Erro comum: I stayed nervous → Versão correta: I was / became nervous → "stay" descreve permanência, não mudança de estado
+Erro comum: They doesn't explain → Versão correta: They don't explain → concordância verbal: 3ª pessoa do plural usa "don't"
+Erro comum: I have misunderstood her (no passado) → Versão correta: I had misunderstood her → past perfect para uma ação anterior a outra no passado
+Erro comum: I'm used to work under pressure → Versão correta: I'm used to working under pressure → "used to" + verbo com -ing quando indica hábito atual
+Erro comum: In the end, everything gave right → Versão correta: In the end, everything worked out → tradução literal de "deu certo"
+
+## 5. Expressões idiomáticas trabalhadas
+
+Expressão: to fall flat on your face
+Significado / equivalente em português: quebrar a cara / falhar feio numa tentativa
+
+Expressão: to beat your head against a brick wall
+Significado / equivalente em português: bater cabeça, se esforçar sem resultado
+
+Expressão: to have difficulty + verb-ing
+Significado / equivalente em português: ter dificuldade para fazer algo
+
+Expressão: different from
+Significado / equivalente em português: diferente de (não "different than/of")
+
+Expressão: to make fun (of someone/something)
+Significado / equivalente em português: zoar, tirar sarro
+
+## 6. Estrutura "From Conversation to Report"
+
+Essa é a ferramenta central do mês: um roteiro de 6 perguntas que transforma qualquer situação — um mal-entendido, uma falha, um problema técnico — em uma narrativa organizada, pronta para virar conversa, apresentação ou report escrito.
+
+Elemento: 1. Situation
+Pergunta-guia: O que aconteceu?
+Frase de apoio: What happened was...
+
+Elemento: 2. Initial impression
+Pergunta-guia: O que você pensou a princípio?
+Frase de apoio: At first, I thought...
+
+Elemento: 3. Real situation
+Pergunta-guia: O que você descobriu depois?
+Frase de apoio: It turned out that...
+
+Elemento: 4. Cause
+Pergunta-guia: O que causou o problema?
+Frase de apoio: The issue was caused by...
+
+Elemento: 5. Difficulty
+Pergunta-guia: O que tornou a situação difícil?
+Frase de apoio: What made it difficult was...
+
+Elemento: 6. Conclusion
+Pergunta-guia: O que ficou claro no final?
+Frase de apoio: In the end, we realized that...
+
+Dica: esse roteiro funciona tanto para contar uma história pessoal quanto para estruturar um report técnico de falha — a lógica é a mesma: situação → hipótese inicial → causa real → dificuldade → conclusão.
+
+## 7. Vocabulário aplicado: da conversa ao report técnico
+
+Aqui está a ponte entre o inglês do dia a dia trabalhado em aula e o vocabulário técnico que você usa como engenheira de corrosão. A estrutura é a mesma — muda só o registro.
+
+Frase do dia a dia (aula): What happened was...
+Versão para report técnico: The failure was first identified during / The event occurred when...
+
+Frase do dia a dia (aula): At first, I thought...
+Versão para report técnico: The initial assessment suggested... / It was initially assumed that...
+
+Frase do dia a dia (aula): It turned out that...
+Versão para report técnico: Further investigation revealed that... / Subsequent analysis showed that...
+
+Frase do dia a dia (aula): The issue was caused by...
+Versão para report técnico: The root cause was identified as... / The failure was attributed to...
+
+Frase do dia a dia (aula): What made it difficult was...
+Versão para report técnico: A key challenge in the analysis was... / Limited data made it difficult to...
+
+Frase do dia a dia (aula): In the end, we realized that...
+Versão para report técnico: The findings indicate that... / The report concludes that...
+
+## Vocabulário de apoio — corrosão e engenharia de falha
+
+Termo: root cause analysis (RCA)
+Uso: análise de causa raiz
+
+Termo: pitting corrosion
+Uso: corrosão por pite
+
+Termo: corrosion rate
+Uso: taxa de corrosão
+
+Termo: mitigation measures
+Uso: medidas de mitigação
+
+Termo: findings
+Uso: constatações / achados do relatório
+
+Termo: non-conformance
+Uso: não conformidade
+
+Termo: failure mechanism
+Uso: mecanismo de falha
+
+Termo: to escalate an issue
+Uso: escalar um problema
+
+## 8. Checklist — o que manter em mente
+
+Antes de contar uma situação, apresentar um caso ou escrever um report em inglês, passe por esse checklist:
+
+☐ Comecei com uma frase-chunk clara ("what happened was..." / "the thing is...") em vez de ir direto para detalhes soltos?
+☐ Evitei traduzir expressões do português ao pé da letra (revisar a lista do "Brazilian Brain Detox")?
+☐ Usei "tell someone" em vez de "say me", e conferi a concordância verbal (don't / doesn't)?
+☐ Separei claramente: o que eu pensei a princípio x o que eu descobri depois ("at first I thought" / "it turned out that")?
+☐ Expliquei a causa e a dificuldade separadamente, não tudo junto?
+☐ Fechei com uma conclusão clara ("in the end, we realized that..." / "the report concludes that...")?
+☐ Se for um report técnico, troquei o tom coloquial pelo tom mais formal (ver tabela da seção 7)?
+☐ Reli a frase em voz alta: soa como algo que um falante nativo diria, ou é uma tradução literal do português?
+
+## 9. Sugestão de prática para o próximo mês
+
+• Escolher 1 situação real da semana (um mal-entendido, uma falha, uma decisão) e narrá-la em voz alta usando a estrutura de 6 partes.
+• Pegar um report técnico já escrito e reescrever 2-3 frases-chave usando as expressões da seção 7.
+• Manter uma lista pessoal de "traduções literais que eu ainda faço" e revisar antes de reuniões importantes.
+• Praticar contar a mesma situação de dois jeitos: informal (para um colega) e formal (para um report ou apresentação).
+
+===== FIM DO RESUMO =====`;
+
+        const blob = new Blob([summary], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Guia_Resumo_Mes_Situacoes_para_Reports.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       });
     })();
   </script>
 </body>
-</html>
+</html> 
