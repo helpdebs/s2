@@ -91,25 +91,44 @@
       margin-bottom: 24px;
       border: 1px solid #d9e2f0;
     }
-    .audio-box audio {
-      width: 100%;
-      outline: none;
-      border-radius: 40px;
-      margin-bottom: 6px;
-    }
     .audio-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 6px;
     }
     .audio-label {
       font-weight: 500;
       color: #1a3f5e;
       font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
+    .audio-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .speech-btn {
+      background: #4a7a9c;
+      border: none;
+      border-radius: 40px;
+      padding: 8px 20px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speech-btn:hover { background: #2f5f7e; }
+    .speech-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .speech-btn.playing { background: #c0392b; }
     .transcript-toggle {
       background: #e3edf9;
       border: none;
@@ -136,22 +155,6 @@
       white-space: pre-wrap;
       color: #1f2e44;
     }
-    .speech-btn {
-      background: #4a7a9c;
-      border: none;
-      border-radius: 40px;
-      padding: 8px 18px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: 0.15s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .speech-btn:hover { background: #2f5f7e; }
-    .speech-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     /* ===== LEVEL GATE ===== */
     nav[aria-label="Level navigation"] {
       display: flex;
@@ -323,6 +326,7 @@
       .opt { padding: 6px 12px; gap: 10px; }
       .opt label { font-size: 0.88rem; }
       .audio-label { font-size: 0.85rem; }
+      .audio-actions { width: 100%; justify-content: flex-start; }
     }
     @media (max-width: 480px) {
       body { padding: 10px; }
@@ -358,14 +362,11 @@
       </div>
     </header>
 
-    <!-- AUDIO -->
+    <!-- AUDIO (no player bar, only listen button) -->
     <section class="audio-box" aria-label="Case audio">
-      <audio controls id="mainAudio" preload="metadata">
-        <source src="data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAACBhYqFh4qLjY6RlZOVl5edn6Gnp6+vs7e5vsHCwsPJyszN0dPV2Nnb3ODh4uTl5ufn6uvs7e7v8PHy8vP09PX29vf4+fn5+vr6+/v8/Pz9/f3+/v7+////" />
-      </audio>
       <div class="audio-controls">
         <span class="audio-label">🎙️ Heat exchanger failure – case audio</span>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div class="audio-actions">
           <button class="speech-btn" id="speechBtn" aria-label="Listen to case audio using text-to-speech">🔊 Listen</button>
           <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false" aria-controls="transcriptContainer">📄 Show transcript</button>
         </div>
@@ -406,20 +407,26 @@
         if (speechSynth.speaking) {
           speechSynth.cancel();
           this.textContent = '🔊 Listen';
+          this.classList.remove('playing');
           return;
         }
         utterance = new SpeechSynthesisUtterance(transcriptText);
         utterance.lang = 'en-US';
         utterance.rate = 0.9;
         utterance.pitch = 1;
+        utterance.onstart = function() {
+          speechBtn.textContent = '⏹ Stop';
+          speechBtn.classList.add('playing');
+        };
         utterance.onend = function() {
           speechBtn.textContent = '🔊 Listen';
+          speechBtn.classList.remove('playing');
         };
         utterance.onerror = function() {
           speechBtn.textContent = '🔊 Listen';
+          speechBtn.classList.remove('playing');
         };
         speechSynth.speak(utterance);
-        this.textContent = '⏹ Stop';
       });
 
       // ===== TASK DATA (all in English) =====
@@ -760,119 +767,4 @@
           toggleTranscriptBtn.disabled = false;
           toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
         } else if (level === 3) {
-          transcriptContainer.innerHTML = `<strong>🎧 Level 3 – Final Report:</strong> audio only. Use the audio to complete the tasks.`;
-          transcriptContainer.classList.remove('hidden');
-          toggleTranscriptBtn.textContent = '📄 Audio only';
-          transcriptVisible = true;
-          toggleTranscriptBtn.disabled = true;
-          toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
-        }
-      }
-
-      // ===== EVENT LISTENERS =====
-      levelBtns[1].addEventListener('click', function() { if (!this.disabled) switchLevel(1); });
-      levelBtns[2].addEventListener('click', function() { if (!this.disabled) switchLevel(2); });
-      levelBtns[3].addEventListener('click', function() { if (!this.disabled) switchLevel(3); });
-
-      // ===== INIT =====
-      function init() {
-        levelUnlocked[1] = true;
-        updateLevelButtons();
-        switchLevel(1);
-      }
-      init();
-
-      // ===== DOWNLOAD SUMMARY =====
-      document.getElementById('downloadSummaryBtn').addEventListener('click', function() {
-        const summary = `===== COMPLETE COURSE SUMMARY =====
-
-How to tell what happened clearly, naturally and professionally in English
-
-This guide brings together everything we worked on in the last classes — expressions, grammar corrections, idioms and the storytelling structure — and connects each point with a skill you use every day at work: turning a situation (a problem, a failure, a misunderstanding) into a clear explanation, whether in a conversation, a presentation or a technical report.
-
-As you are a metallurgical engineer specialised in corrosion, we have used examples related to your field — reports, RCA (root cause analysis), failure reports — so that English practice also becomes professional communication practice.
-
-## 1. What was covered this month
-- Chunks / connectors: "the thing is...", "what happened was...", etc.
-- "Brazilian Brain Detox": literal translations to avoid
-- Grammar corrections: reported speech, irregular verbs, agreement
-- Idiomatic expressions: to fall flat on your face, to beat your head against a brick wall, etc.
-- Structure "From Conversation to Report" (6 parts)
-
-## 2. Key chunks
-- The thing is... / What happened was... / I was supposed to..., but... / I ended up... / Long story short...
-
-## 3. Brazilian Brain Detox (literal translations to avoid)
-take a doubt → clear something up / ask a question
-mark a meeting → schedule a meeting / set up a meeting
-combine to do something → agree to do something / make plans to do something
-make sense for me → make sense to me
-open a parenthesis → as a side note / by the way
-stay without way → feel awkward
-carry it to the personal side → take it personally
-create expectation → get your hopes up / build expectations
-make drama → make a big deal out of it
-resuming... → long story short...
-
-## 4. Grammar corrections
-She said me that... → She told me...
-I was with a doubt → I had a doubt / I wasn't sure
-I don't have how to know → I have no way of knowing / I can't know
-I stayed nervous → I was / became nervous
-They doesn't explain → They don't explain
-I have misunderstood her (past) → I had misunderstood her
-I'm used to work under pressure → I'm used to working under pressure
-In the end, everything gave right → In the end, everything worked out
-
-## 5. Idiomatic expressions
-to fall flat on your face – quebrar a cara / falhar feio
-to beat your head against a brick wall – bater cabeça, se esforçar sem resultado
-to have difficulty + verb-ing – ter dificuldade para fazer algo
-different from – diferente de (não "different than/of")
-to make fun (of someone/something) – zoar, tirar sarro
-
-## 6. Structure "From Conversation to Report"
-1. Situation → What happened was...
-2. Initial impression → At first, I thought...
-3. Real situation → It turned out that...
-4. Cause → The issue was caused by...
-5. Difficulty → What made it difficult was...
-6. Conclusion → In the end, we realized that...
-
-## 7. Technical report equivalents
-What happened was... → The failure was first identified during / The event occurred when...
-At first, I thought... → The initial assessment suggested... / It was initially assumed that...
-It turned out that... → Further investigation revealed that... / Subsequent analysis showed that...
-The issue was caused by... → The root cause was identified as... / The failure was attributed to...
-What made it difficult was... → A key challenge in the analysis was... / Limited data made it difficult to...
-In the end, we realized that... → The findings indicate that... / The report concludes that...
-
-## Technical vocabulary
-root cause analysis (RCA), pitting corrosion, corrosion rate, mitigation measures, findings, non-conformance, failure mechanism, to escalate an issue
-
-## 8. Checklist
-☐ Start with a clear chunk phrase
-☐ Avoid literal translations (Brazilian Brain Detox)
-☐ Use "tell someone" not "say me"
-☐ Separate initial thought vs later discovery
-☐ Explain cause and difficulty separately
-☐ Close with a clear conclusion
-☐ Use formal tone for technical reports
-☐ Read aloud to check naturalness
-
-===== END OF SUMMARY =====`;
-
-        const blob = new Blob([summary], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'complete_course_summary.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
-    })();
-  </script>
-</body>
-</html> 
+          transcriptContainer
