@@ -91,7 +91,12 @@
       margin-bottom: 24px;
       border: 1px solid #d9e2f0;
     }
-    .audio-box audio { width: 100%; outline: none; border-radius: 40px; }
+    .audio-box audio {
+      width: 100%;
+      outline: none;
+      border-radius: 40px;
+      margin-bottom: 6px;
+    }
     .audio-controls {
       display: flex;
       justify-content: space-between;
@@ -117,6 +122,7 @@
       transition: 0.15s;
     }
     .transcript-toggle:hover { background: #cbddec; }
+    .transcript-toggle:disabled { opacity: 0.5; cursor: not-allowed; }
     .transcript-box {
       background: #ffffff;
       border-radius: 16px;
@@ -130,6 +136,22 @@
       white-space: pre-wrap;
       color: #1f2e44;
     }
+    .speech-btn {
+      background: #4a7a9c;
+      border: none;
+      border-radius: 40px;
+      padding: 8px 18px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speech-btn:hover { background: #2f5f7e; }
+    .speech-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     /* ===== LEVEL GATE ===== */
     nav[aria-label="Level navigation"] {
       display: flex;
@@ -202,6 +224,7 @@
       margin-bottom: 10px;
       color: #1e3b55;
       font-size: 0.95rem;
+      white-space: pre-wrap;
     }
     .options {
       display: flex;
@@ -342,7 +365,10 @@
       </audio>
       <div class="audio-controls">
         <span class="audio-label">🎙️ Heat exchanger failure – case audio</span>
-        <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false" aria-controls="transcriptContainer">📄 Show transcript</button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="speech-btn" id="speechBtn" aria-label="Listen to case audio using text-to-speech">🔊 Listen</button>
+          <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false" aria-controls="transcriptContainer">📄 Show transcript</button>
+        </div>
       </div>
       <div id="transcriptContainer" class="transcript-box hidden" role="region" aria-live="polite">
         <strong>📍 Full transcript (Level 1):</strong><br>
@@ -369,8 +395,34 @@
 
   <script>
     (function() {
+      // ===== AUDIO TEXT-TO-SPEECH =====
+      const transcriptText = "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40 percent. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.";
+
+      const speechBtn = document.getElementById('speechBtn');
+      let speechSynth = window.speechSynthesis;
+      let utterance = null;
+
+      speechBtn.addEventListener('click', function() {
+        if (speechSynth.speaking) {
+          speechSynth.cancel();
+          this.textContent = '🔊 Listen';
+          return;
+        }
+        utterance = new SpeechSynthesisUtterance(transcriptText);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.onend = function() {
+          speechBtn.textContent = '🔊 Listen';
+        };
+        utterance.onerror = function() {
+          speechBtn.textContent = '🔊 Listen';
+        };
+        speechSynth.speak(utterance);
+        this.textContent = '⏹ Stop';
+      });
+
       // ===== TASK DATA (all in English) =====
-      // Each level now has 4 tasks (2 new "situation x trigger sentence" tasks per level)
       const tasksData = {
         1: [
           {
@@ -397,7 +449,6 @@
             correct: 1,
             feedback: '✅ Exactly! She says "Long story short, the corrosion rate increased by 40%." – a typical summarising phrase.'
           },
-          // NEW task 1c: situation x trigger sentence
           {
             id: '1c',
             title: 'Situation → Trigger sentence',
@@ -410,7 +461,6 @@
             correct: 0,
             feedback: '✅ "The thing is..." is perfect to introduce the real point behind the situation. It matches the context.'
           },
-          // NEW task 1d: trigger sentence match
           {
             id: '1d',
             title: 'Trigger sentence → Situation',
@@ -449,7 +499,6 @@
             correct: 1,
             feedback: '✔️ "Ended up" indicates an unplanned outcome. She had to redo the analysis due to difficulties.'
           },
-          // NEW task 2c: situation x trigger
           {
             id: '2c',
             title: 'Situation → Trigger sentence',
@@ -462,7 +511,6 @@
             correct: 0,
             feedback: '✅ "It turned out that..." is the precise chunk to present a discovery that contradicts the initial assumption.'
           },
-          // NEW task 2d: trigger → situation
           {
             id: '2d',
             title: 'Trigger sentence → Situation',
@@ -496,7 +544,6 @@
             correct: 0,
             feedback: '✅ Perfect! "Tell someone" requires the object (me, him, etc.). "Say" does not take a direct personal object. E.g., She told me vs She said that...'
           },
-          // NEW task 3c: situation x trigger (technical)
           {
             id: '3c',
             title: 'Situation → Technical trigger',
@@ -509,7 +556,6 @@
             correct: 0,
             feedback: '✅ "A key challenge in the analysis was..." is the formal register from section 7. Perfect for reports.'
           },
-          // NEW task 3d: trigger → situation (technical)
           {
             id: '3d',
             title: 'Technical trigger → Situation',
@@ -522,7 +568,6 @@
             correct: 0,
             feedback: '✅ "The findings indicate that..." is a formal way to present results. It shows that corrosion was higher than expected.'
           },
-          // existing free task 3e (renumbered)
           {
             id: '3e',
             title: 'Final transformation – conversation → report',
@@ -830,4 +875,4 @@ root cause analysis (RCA), pitting corrosion, corrosion rate, mitigation measure
     })();
   </script>
 </body>
-</html>
+</html> 
