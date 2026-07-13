@@ -375,7 +375,6 @@
       <!-- Real audio player -->
       <audio id="caseAudio" controls preload="metadata" aria-label="Heat exchanger failure case audio">
         <source src="case-audio.mp3" type="audio/mpeg">
-        <!-- Fallback for older browsers -->
         Your browser does not support the audio element. Please update your browser.
       </audio>
       <div id="audioError" class="audio-error">
@@ -411,7 +410,6 @@
       const audioElement = document.getElementById('caseAudio');
       const audioError = document.getElementById('audioError');
 
-      // Check if audio file is accessible
       audioElement.addEventListener('error', function() {
         audioError.classList.add('show');
       });
@@ -750,6 +748,8 @@
           transcriptVisible = true;
           toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
           toggleTranscriptBtn.disabled = false;
+          transcriptContainer.innerHTML = `<strong>📍 Full transcript (Level 1):</strong><br>
+            "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn't inform us. At first, I thought it was pitting corrosion due to chlorides. But it turned out that the real issue was caused by a combination of higher flow velocity and low pH. Long story short, the corrosion rate increased by 40%. I ended up re-running the whole root cause analysis. In the end, we realized that better communication with the client would have prevented this."`;
         } else if (level === 2) {
           transcriptContainer.innerHTML = `<strong>🔎 Evidence excerpts (Level 2):</strong><br>
             • "the client changed the operating temperature"<br>
@@ -795,7 +795,13 @@ Como você é engenheira metalúrgica especializada em corrosão, sempre que pos
 
 ## 1. O que foi trabalhado nesse mês
 
-O fio condutor das aulas foi um só: como transformar uma situação confusa ou informal em uma narrativa organizada e natural em inglês.
+O fio condutor das aulas foi um só: como transformar uma situação confusa ou informal em uma narrativa organizada e natural em inglês. Isso apareceu em quatro frentes:
+
+• Chunks / conectores para contar uma história com clareza ("the thing is...", "what happened was...", etc.)
+• Erros típicos de tradução literal do português para o inglês ("Brazilian Brain Detox")
+• Correções gramaticais recorrentes nas suas frases (reported speech, verbos irregulares, concordância)
+• Expressões idiomáticas para descrever dificuldades e reações
+• Uma estrutura fixa — "From Conversation to Report" — para organizar qualquer situação em 6 partes
 
 ---
 
