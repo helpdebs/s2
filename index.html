@@ -108,23 +108,13 @@
       flex-wrap: wrap;
       align-items: center;
     }
-    .speech-btn {
-      background: #4a7a9c;
-      border: none;
-      border-radius: 40px;
-      padding: 8px 20px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: 0.15s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    audio {
+      width: 100%;
+      max-width: 400px;
+      height: 32px;
+      margin-top: 12px;
+      border-radius: 8px;
     }
-    .speech-btn:hover { background: #2f5f7e; }
-    .speech-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .speech-btn.playing { background: #c0392b; }
     .transcript-toggle {
       background: #e3edf9;
       border: none;
@@ -359,6 +349,7 @@
       .btn-action { padding: 10px 18px; font-size: 0.85rem; width: 100%; }
       .free-textarea { min-height: 60px; font-size: 0.85rem; }
       .audio-box { padding: 12px 10px; }
+      audio { margin-top: 8px; }
       .transcript-box { font-size: 0.82rem; padding: 12px; }
       .download-btn { font-size: 0.7rem; padding: 6px 12px; }
       .footer-note { font-size: 0.75rem; }
@@ -380,17 +371,22 @@
     <section class="audio-box" aria-label="Case audio">
       <div class="audio-controls">
         <span class="audio-label">🎙️ Heat exchanger failure – case audio</span>
-        <div class="audio-actions">
-          <button class="speech-btn" id="speechBtn" aria-label="Listen to case audio">🔊 Listen</button>
-          <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false" aria-controls="transcriptContainer">📄 Show transcript</button>
-        </div>
       </div>
+      <!-- Real audio player -->
+      <audio id="caseAudio" controls preload="metadata" aria-label="Heat exchanger failure case audio">
+        <source src="case-audio.mp3" type="audio/mpeg">
+        <!-- Fallback for older browsers -->
+        Your browser does not support the audio element. Please update your browser.
+      </audio>
       <div id="audioError" class="audio-error">
-        ⚠️ Audio not available. Please use the "Listen" button for text-to-speech, or read the transcript below.
+        ⚠️ Audio file not found. Make sure "case-audio.mp3" is uploaded to the same directory.
+      </div>
+      <div class="audio-actions" style="margin-top: 12px;">
+        <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false" aria-controls="transcriptContainer">📄 Show transcript</button>
       </div>
       <div id="transcriptContainer" class="transcript-box hidden" role="region" aria-live="polite">
         <strong>📍 Full transcript (Level 1):</strong><br>
-        “The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40%. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.”
+        "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn't inform us. At first, I thought it was pitting corrosion due to chlorides. But it turned out that the real issue was caused by a combination of higher flow velocity and low pH. Long story short, the corrosion rate increased by 40%. I ended up re-running the whole root cause analysis. In the end, we realized that better communication with the client would have prevented this."
       </div>
     </section>
 
@@ -411,55 +407,13 @@
 
   <script>
     (function() {
-      // ===== AUDIO TEXT-TO-SPEECH =====
-      const transcriptText = "The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40 percent. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.";
-
-      const speechBtn = document.getElementById('speechBtn');
+      // ===== AUDIO ELEMENT HANDLING =====
+      const audioElement = document.getElementById('caseAudio');
       const audioError = document.getElementById('audioError');
-      let speechSynth = window.speechSynthesis;
-      let utterance = null;
 
-      // Check if speech synthesis is available
-      if (!window.speechSynthesis) {
-        audioError.textContent = '⚠️ Text-to-speech not supported in this browser. Please use Chrome, Edge, or Safari.';
+      // Check if audio file is accessible
+      audioElement.addEventListener('error', function() {
         audioError.classList.add('show');
-        speechBtn.disabled = true;
-      }
-
-      speechBtn.addEventListener('click', function() {
-        if (speechSynth.speaking) {
-          speechSynth.cancel();
-          this.textContent = '🔊 Listen';
-          this.classList.remove('playing');
-          return;
-        }
-        try {
-          utterance = new SpeechSynthesisUtterance(transcriptText);
-          utterance.lang = 'en-US';
-          utterance.rate = 0.85;
-          utterance.pitch = 1;
-          utterance.onstart = function() {
-            speechBtn.textContent = '⏹ Stop';
-            speechBtn.classList.add('playing');
-            audioError.classList.remove('show');
-          };
-          utterance.onend = function() {
-            speechBtn.textContent = '🔊 Listen';
-            speechBtn.classList.remove('playing');
-          };
-          utterance.onerror = function(e) {
-            speechBtn.textContent = '🔊 Listen';
-            speechBtn.classList.remove('playing');
-            audioError.textContent = '⚠️ Audio error: ' + e.error + '. Please try again or read the transcript.';
-            audioError.classList.add('show');
-          };
-          speechSynth.speak(utterance);
-        } catch(e) {
-          audioError.textContent = '⚠️ Error: ' + e.message;
-          audioError.classList.add('show');
-          speechBtn.textContent = '🔊 Listen';
-          speechBtn.classList.remove('playing');
-        }
       });
 
       // ===== TASK DATA =====
@@ -475,7 +429,7 @@
               'Corrosion engineer miscalculation.'
             ],
             correct: 0,
-            feedback: '✅ Correct! The client changed the operating temperature without informing, as in the audio: "the client changed the operating temperature, but they didn’t inform us."'
+            feedback: '✅ Correct! The client changed the operating temperature without informing, as in the audio: "the client changed the operating temperature, but they didn't inform us."'
           },
           {
             id: '1b',
@@ -577,7 +531,7 @@
             title: 'Use of "tell" vs "say"',
             description: 'In the audio she says: "They told me that the failure mechanism was stress corrosion cracking." Why "told" and not "said"?',
             options: [
-              'Because "tell" requires an indirect object (me) – it’s correct.',
+              'Because "tell" requires an indirect object (me) – it's correct.',
               'Because "said" would only be used for direct speech.',
               'Both are correct, but "told" is more formal.'
             ],
@@ -796,24 +750,22 @@
           transcriptVisible = true;
           toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
           toggleTranscriptBtn.disabled = false;
-          transcriptContainer.innerHTML = `<strong>📍 Full transcript (Level 1):</strong><br>
-            “The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40%. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.”`;
         } else if (level === 2) {
           transcriptContainer.innerHTML = `<strong>🔎 Evidence excerpts (Level 2):</strong><br>
-            • “the client changed the operating temperature”<br>
-            • “It turned out that the real issue was caused by a combination...”<br>
-            • “I ended up re-running the whole root cause analysis.”`;
+            • "the client changed the operating temperature"<br>
+            • "It turned out that the real issue was caused by a combination..."<br>
+            • "I ended up re-running the whole root cause analysis."`;
           transcriptContainer.classList.remove('hidden');
-          toggleTranscriptBtn.textContent = '📄 Excerpts (Level 2)';
+          toggleTranscriptBtn.textContent = '📄 Show excerpts';
           transcriptVisible = true;
           toggleTranscriptBtn.disabled = false;
           toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
         } else if (level === 3) {
-          transcriptContainer.innerHTML = `<strong>🎧 Level 3 – Final Report:</strong> audio only. Use the audio to complete the tasks.`;
+          transcriptContainer.innerHTML = `<strong>🎧 Level 3 – Final Report:</strong> Use the audio above to complete the tasks.`;
           transcriptContainer.classList.remove('hidden');
-          toggleTranscriptBtn.textContent = '📄 Audio only';
+          toggleTranscriptBtn.textContent = '📄 Hide note';
           transcriptVisible = true;
-          toggleTranscriptBtn.disabled = true;
+          toggleTranscriptBtn.disabled = false;
           toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
         }
       }
@@ -837,197 +789,24 @@
 
 Como contar o que aconteceu de forma clara, natural e profissional em inglês
 
-Este guia reúne tudo o que foi trabalhado nas últimas aulas — expressões, correções gramaticais, idioms e a estrutura de storytelling — e conecta cada ponto com uma habilidade que você usa todo dia no trabalho: transformar uma situação (um problema, uma falha, um mal-entendido) em uma explicação clara, seja numa conversa, numa apresentação ou num report técnico.
+Este guia reúne tudo o que foi trabalhado nas últimas aulas — expressões, correções gramaticais, idioms e a estrutura de storytelling — e conecta cada ponto com uma habilidade que você usa todos os dias.
 
-Como você é engenheira metalúrgica especializada em corrosão, sempre que possível trouxemos exemplos ligados à sua área — laudos, RCA (root cause analysis), reports de falha — para que a prática de inglês se torne também prática de comunicação profissional.
+Como você é engenheira metalúrgica especializada em corrosão, sempre que possível trouxemos exemplos ligados à sua área — laudos, RCA (root cause analysis), reports de falha — para que a prática seja prática mesmo.
 
 ## 1. O que foi trabalhado nesse mês
 
-O fio condutor das aulas foi um só: como transformar uma situação confusa ou informal em uma narrativa organizada e natural em inglês. Isso apareceu em quatro frentes:
+O fio condutor das aulas foi um só: como transformar uma situação confusa ou informal em uma narrativa organizada e natural em inglês.
 
-•	 Chunks / conectores para contar uma história com clareza ("the thing is...", "what happened was...", etc.)
-•	 Erros típicos de tradução literal do português para o inglês ("Brazilian Brain Detox")
-•	 Correções gramaticais recorrentes nas suas frases (reported speech, verbos irregulares, concordância)
-•	 Expressões idiomáticas para descrever dificuldades e reações
-•	 Uma estrutura fixa — "From Conversation to Report" — para organizar qualquer situação em 6 partes
+---
 
-## 2. Chunks para contar uma situação
-
-Essas expressões são o esqueleto de qualquer relato — pessoal ou profissional. Use-as para estruturar a fala antes mesmo de pensar em vocabulário mais específico.
-
-Expressão: The thing is...
-Quando usar: Explicar o ponto real por trás da situação
-Exemplo: The thing is, I didn't have all the information yet.
-
-Expressão: What happened was...
-Quando usar: Explicar a situação com mais clareza
-Exemplo: What happened was the client changed the spec at the last minute.
-
-Expressão: I was supposed to..., but...
-Quando usar: Mostrar que havia um plano, mas algo mudou
-Exemplo: I was supposed to send the report by Friday, but the data was incomplete.
-
-Expressão: I ended up...
-Quando usar: Mostrar que o resultado final foi diferente do esperado
-Exemplo: I ended up re-running the whole analysis.
-
-Expressão: Long story short...
-Quando usar: Resumir a história antes de concluir
-Exemplo: Long story short, the corrosion rate was higher than expected.
-
-## 3. "Brazilian Brain Detox": tradução literal a evitar
-
-Em vez de (tradução literal) → Use → Ideia em português
-take a doubt → clear something up / ask a question → tirar uma dúvida
-mark a meeting → schedule a meeting / set up a meeting → marcar uma reunião
-combine to do something → agree to do something / make plans to do something → combinar de fazer algo
-make sense for me → make sense to me → fazer sentido pra mim
-open a parenthesis → as a side note / by the way → abrir um parêntese
-stay without way → feel awkward → ficar sem jeito
-carry it to the personal side → take it personally → levar para o pessoal
-create expectation → get your hopes up / build expectations → criar expectativa
-make drama → make a big deal out of it → fazer drama
-resuming... → long story short... → resumindo
-
-## 4. Correções gramaticais praticadas
-
-Erro comum: She said me that... → Versão correta: She told me... → Ponto de atenção: "say" não leva objeto direto de pessoa; use "tell someone"
-Erro comum: I was with a doubt → Versão correta: I had a doubt / I wasn't sure → Ponto de atenção: "be with a doubt" não existe em inglês
-Erro comum: I don't have how to know → Versão correta: I have no way of knowing / I can't know → tradução literal de "não tenho como"
-Erro comum: I stayed nervous → Versão correta: I was / became nervous → "stay" descreve permanência, não mudança de estado
-Erro comum: They doesn't explain → Versão correta: They don't explain → concordância verbal: 3ª pessoa do plural usa "don't"
-Erro comum: I have misunderstood her (no passado) → Versão correta: I had misunderstood her → past perfect para uma ação anterior a outra no passado
-Erro comum: I'm used to work under pressure → Versão correta: I'm used to working under pressure → "used to" + verbo com -ing quando indica hábito atual
-Erro comum: In the end, everything gave right → Versão correta: In the end, everything worked out → tradução literal de "deu certo"
-
-## 5. Expressões idiomáticas trabalhadas
-
-Expressão: to fall flat on your face
-Significado / equivalente em português: quebrar a cara / falhar feio numa tentativa
-
-Expressão: to beat your head against a brick wall
-Significado / equivalente em português: bater cabeça, se esforçar sem resultado
-
-Expressão: to have difficulty + verb-ing
-Significado / equivalente em português: ter dificuldade para fazer algo
-
-Expressão: different from
-Significado / equivalente em português: diferente de (não "different than/of")
-
-Expressão: to make fun (of someone/something)
-Significado / equivalente em português: zoar, tirar sarro
-
-## 6. Estrutura "From Conversation to Report"
-
-Essa é a ferramenta central do mês: um roteiro de 6 perguntas que transforma qualquer situação — um mal-entendido, uma falha, um problema técnico — em uma narrativa organizada, pronta para virar conversa, apresentação ou report escrito.
-
-Elemento: 1. Situation
-Pergunta-guia: O que aconteceu?
-Frase de apoio: What happened was...
-
-Elemento: 2. Initial impression
-Pergunta-guia: O que você pensou a princípio?
-Frase de apoio: At first, I thought...
-
-Elemento: 3. Real situation
-Pergunta-guia: O que você descobriu depois?
-Frase de apoio: It turned out that...
-
-Elemento: 4. Cause
-Pergunta-guia: O que causou o problema?
-Frase de apoio: The issue was caused by...
-
-Elemento: 5. Difficulty
-Pergunta-guia: O que tornou a situação difícil?
-Frase de apoio: What made it difficult was...
-
-Elemento: 6. Conclusion
-Pergunta-guia: O que ficou claro no final?
-Frase de apoio: In the end, we realized that...
-
-Dica: esse roteiro funciona tanto para contar uma história pessoal quanto para estruturar um report técnico de falha — a lógica é a mesma: situação → hipótese inicial → causa real → dificuldade → conclusão.
-
-## 7. Vocabulário aplicado: da conversa ao report técnico
-
-Aqui está a ponte entre o inglês do dia a dia trabalhado em aula e o vocabulário técnico que você usa como engenheira de corrosão. A estrutura é a mesma — muda só o registro.
-
-Frase do dia a dia (aula): What happened was...
-Versão para report técnico: The failure was first identified during / The event occurred when...
-
-Frase do dia a dia (aula): At first, I thought...
-Versão para report técnico: The initial assessment suggested... / It was initially assumed that...
-
-Frase do dia a dia (aula): It turned out that...
-Versão para report técnico: Further investigation revealed that... / Subsequent analysis showed that...
-
-Frase do dia a dia (aula): The issue was caused by...
-Versão para report técnico: The root cause was identified as... / The failure was attributed to...
-
-Frase do dia a dia (aula): What made it difficult was...
-Versão para report técnico: A key challenge in the analysis was... / Limited data made it difficult to...
-
-Frase do dia a dia (aula): In the end, we realized that...
-Versão para report técnico: The findings indicate that... / The report concludes that...
-
-## Vocabulário de apoio — corrosão e engenharia de falha
-
-Termo: root cause analysis (RCA)
-Uso: análise de causa raiz
-
-Termo: pitting corrosion
-Uso: corrosão por pite
-
-Termo: corrosion rate
-Uso: taxa de corrosão
-
-Termo: mitigation measures
-Uso: medidas de mitigação
-
-Termo: findings
-Uso: constatações / achados do relatório
-
-Termo: non-conformance
-Uso: não conformidade
-
-Termo: failure mechanism
-Uso: mecanismo de falha
-
-Termo: to escalate an issue
-Uso: escalar um problema
-
-## 8. Checklist — o que manter em mente
-
-Antes de contar uma situação, apresentar um caso ou escrever um report em inglês, passe por esse checklist:
-
-☐ Comecei com uma frase-chunk clara ("what happened was..." / "the thing is...") em vez de ir direto para detalhes soltos?
-☐ Evitei traduzir expressões do português ao pé da letra (revisar a lista do "Brazilian Brain Detox")?
-☐ Usei "tell someone" em vez de "say me", e conferi a concordância verbal (don't / doesn't)?
-☐ Separei claramente: o que eu pensei a princípio x o que eu descobri depois ("at first I thought" / "it turned out that")?
-☐ Expliquei a causa e a dificuldade separadamente, não tudo junto?
-☐ Fechei com uma conclusão clara ("in the end, we realized that..." / "the report concludes that...")?
-☐ Se for um report técnico, troquei o tom coloquial pelo tom mais formal (ver tabela da seção 7)?
-☐ Reli a frase em voz alta: soa como algo que um falante nativo diria, ou é uma tradução literal do português?
-
-## 9. Sugestão de prática para o próximo mês
-
-• Escolher 1 situação real da semana (um mal-entendido, uma falha, uma decisão) e narrá-la em voz alta usando a estrutura de 6 partes.
-• Pegar um report técnico já escrito e reescrever 2-3 frases-chave usando as expressões da seção 7.
-• Manter uma lista pessoal de "traduções literais que eu ainda faço" e revisar antes de reuniões importantes.
-• Praticar contar a mesma situação de dois jeitos: informal (para um colega) e formal (para um report ou apresentação).
-
-===== FIM DO RESUMO =====`;
-
-        const blob = new Blob([summary], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Guia_Resumo_Mes_Situacoes_para_Reports.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+Baixado em: ${new Date().toLocaleString()}
+`;
+        const el = document.createElement('a');
+        el.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(summary);
+        el.download = 'Failure_Dossier_Summary.txt';
+        el.click();
       });
     })();
   </script>
 </body>
-</html> 
+</html>
