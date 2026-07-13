@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔬 Training: Technical Case – Corrosion</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f4f7fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+    .card {
+      max-width: 820px;
+      width: 100%;
+      background: white;
+      border-radius: 36px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 40px -12px rgba(0,20,40,0.25);
+      transition: all 0.2s;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0b2b4a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid #e6edf5;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .badge-level {
+      background: #dce6f2;
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1a3f60;
+      margin-left: 12px;
+    }
+    .audio-box {
+      background: #f0f5fe;
+      border-radius: 20px;
+      padding: 20px 20px 16px;
+      margin-bottom: 28px;
+      border: 1px solid #d9e2f0;
+    }
+    .audio-box audio {
+      width: 100%;
+      outline: none;
+      border-radius: 40px;
+    }
+    .transcript-toggle {
+      margin-top: 10px;
+      background: none;
+      border: none;
+      color: #1f5e8e;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 30px;
+      background: #e3edf9;
+      display: inline-block;
+      transition: 0.15s;
+    }
+    .transcript-toggle:hover {
+      background: #cbddec;
+    }
+    .transcript-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-top: 16px;
+      border: 1px solid #d0ddee;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-height: 260px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      color: #1f2e44;
+    }
+    .level-gate {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .gate-btn {
+      background: #eef3f9;
+      border: 1px solid #cddbe9;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 600;
+      color: #244e72;
+      cursor: pointer;
+      transition: 0.15s;
+      flex: 1 1 auto;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .gate-btn.active {
+      background: #1d4a72;
+      border-color: #1d4a72;
+      color: white;
+      box-shadow: 0 8px 14px -8px rgba(26, 67, 113, 0.3);
+    }
+    .gate-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.3);
+      transform: none;
+      box-shadow: none;
+    }
+    .gate-btn.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .task-area {
+      background: #fafcff;
+      border-radius: 28px;
+      padding: 8px 4px 4px 4px;
+    }
+    .task-item {
+      background: white;
+      border-radius: 24px;
+      padding: 20px 20px 24px;
+      margin-bottom: 20px;
+      border: 1px solid #e2ebf6;
+      box-shadow: 0 4px 10px rgba(0, 20, 40, 0.02);
+    }
+    .task-title {
+      font-weight: 700;
+      color: #123a5a;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 1.1rem;
+    }
+    .task-title span {
+      background: #d3e2f5;
+      border-radius: 30px;
+      padding: 0 14px;
+      font-size: 0.75rem;
+      line-height: 24px;
+      color: #113753;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 12px 0 8px;
+    }
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 16px;
+      background: #f7faff;
+      border-radius: 40px;
+      border: 1px solid #dde7f2;
+      transition: 0.1s;
+      cursor: pointer;
+    }
+    .opt:hover {
+      background: #edf4fe;
+      border-color: #b0cbe5;
+    }
+    .opt input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #1a5b8a;
+      flex-shrink: 0;
+    }
+    .opt label {
+      font-size: 0.98rem;
+      color: #142b40;
+      width: 100%;
+      cursor: pointer;
+    }
+    .feedback {
+      background: #ecf3fb;
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin-top: 16px;
+      border-left: 5px solid #1f6d9e;
+      font-size: 0.95rem;
+      color: #15344f;
+    }
+    .feedback.correct {
+      border-left-color: #1d8b4f;
+      background: #e6f5ed;
+    }
+    .feedback.wrong {
+      border-left-color: #b13e3e;
+      background: #fdeeec;
+    }
+    .btn-action {
+      background: #1d5a81;
+      border: none;
+      border-radius: 60px;
+      padding: 14px 28px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.15s;
+      margin-top: 8px;
+      box-shadow: 0 6px 12px -6px rgba(18, 67, 112, 0.25);
+    }
+    .btn-action:hover {
+      background: #13456a;
+      transform: scale(0.98);
+    }
+    .btn-action:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .mt-2 { margin-top: 14px; }
+    .mb-1 { margin-bottom: 6px; }
+    .text-small { font-size: 0.85rem; color: #38658b; }
+    .badge-completed {
+      background: #1f8b4c;
+      color: white;
+      padding: 6px 18px;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .divider {
+      border: none;
+      border-top: 2px dashed #d4e0ee;
+      margin: 18px 0 10px;
+    }
+    .hidden { display: none; }
+    .free-textarea {
+      width: 100%;
+      border-radius: 20px;
+      border: 1px solid #ccddec;
+      padding: 16px;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 90px;
+      background: #fafdff;
+      margin: 10px 0 6px;
+    }
+    .level-progress {
+      font-weight: 500;
+      color: #1b4c70;
+    }
+    .highlight {
+      background: #eaf2fc;
+      padding: 0 6px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .download-btn {
+      background: #2b6d4b;
+      border: none;
+      border-radius: 60px;
+      padding: 12px 28px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 6px 12px -6px rgba(27, 85, 55, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+    .download-btn:hover {
+      background: #1c5a3b;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+<div class="card" id="app">
+  <h1>
+    🧪 Failure Dossier
+    <span class="badge-level">Level <span id="currentLevelDisplay">1</span>/3</span>
+    <button class="download-btn" id="downloadSummaryBtn" style="margin-left:auto;">📄 Download full summary</button>
+  </h1>
+  <!-- central audio -->
+  <div class="audio-box">
+    <audio controls id="mainAudio" preload="metadata">
+      <source src="data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAACBhYqFh4qLjY6RlZOVl5edn6Gnp6+vs7e5vsHCwsPJyszN0dPV2Nnb3ODh4uTl5ufn6uvs7e7v8PHy8vP09PX29vf4+fn5+vr6+/v8/Pz9/f3+/v7+////" />
+    </audio>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <span style="font-weight: 500; color: #1a3f5e;">🎙️ Case audio – Heat exchanger failure</span>
+      <button class="transcript-toggle" id="toggleTranscriptBtn" aria-expanded="false">📄 Show transcript</button>
+    </div>
+    <div id="transcriptContainer" class="transcript-box hidden">
+      <strong>📍 Full transcript (Level 1):</strong><br>
+      “The thing is, we had a non-conformance in the heat exchanger after just 18 months. What happened was the client changed the operating temperature, but they didn’t inform us. At first, I thought it was pitting corrosion due to chlorides. It turned out that the real issue was caused by a combination of higher flow velocity and low pH. What made it difficult was the lack of historical data – I ended up re-running the whole root cause analysis. Long story short, the corrosion rate increased by 40%. I was supposed to present the findings last week, but I had to escalate the issue to the metallurgy team. They told me that the failure mechanism was stress corrosion cracking. Initially, I felt awkward because I had misunderstood the client’s specs. In the end, we realized that we need mitigation measures and better communication. I’m used to working under pressure, but this time I had a doubt about the sampling procedure. They don't always explain the context, so I have no way of knowing the full history. Anyway, everything worked out after we re-simulated the conditions.”
+    </div>
+  </div>
+
+  <!-- Level controls -->
+  <div class="level-gate">
+    <button class="gate-btn active" data-level="1" id="level1Btn">📋 Level 1 · Case Record</button>
+    <button class="gate-btn" data-level="2" id="level2Btn" disabled>🔍 Level 2 · Investigation</button>
+    <button class="gate-btn" data-level="3" id="level3Btn" disabled>📊 Level 3 · Final Report</button>
+  </div>
+
+  <!-- Dynamic task area -->
+  <div id="taskContainer" class="task-area">
+    <!-- rendered via js -->
+  </div>
+  <div style="margin-top: 24px; font-size: 0.9rem; color: #38658b; border-top: 1px solid #dce6f2; padding-top: 16px; text-align: center;">
+    ⚡ Each level unlocks after completing all tasks in the previous level.
+  </div>
+</div>
+<script>
+  (function() {
+    // ------- CONFIG -------
+    const LEVELS = {
+      1: { id: 1, label: 'Case Record', unlocked: true },
+      2: { id: 2, label: 'Investigation', unlocked: false },
+      3: { id: 3, label: 'Final Report', unlocked: false }
+    };
+
+    // Task data per level (ALL IN ENGLISH)
+    const tasksData = {
+      1: [
+        {
+          id: '1a',
+          title: 'General comprehension',
+          description: 'What was the main problem?',
+          options: [
+            'The client changed the specification without notice.',
+            'Power supply failure.',
+            'Corrosion engineer miscalculation.'
+          ],
+          correct: 0,
+          feedback: '✅ Correct! The client changed the operating temperature without informing, as in the audio: "the client changed the operating temperature, but they didn’t inform us."'
+        },
+        {
+          id: '1b',
+          title: 'Vocabulary & chunks',
+          description: 'In the audio, the engineer uses an expression to summarise the story. Which one?',
+          options: [
+            '"To fall flat on your face"',
+            '"Long story short"',
+            '"Beat your head against a brick wall"'
+          ],
+          correct: 1,
+          feedback: '✅ Exactly! She says "Long story short, the corrosion rate increased by 40%." – a typical summarising phrase.'
+        }
+      ],
+      2: [
+        {
+          id: '2a',
+          title: 'Cause identification',
+          description: 'What did the engineer discover as the real cause of the failure? (audio)',
+          options: [
+            'Pitting corrosion due to chlorides.',
+            'Combination of higher flow velocity and low pH.',
+            'Manufacturing material issue.'
+          ],
+          correct: 1,
+          feedback: '🎯 Correct! She states: "It turned out that the real issue was caused by a combination of higher flow velocity and low pH."'
+        },
+        {
+          id: '2b',
+          title: 'Expression interpretation',
+          description: 'She said: "I ended up re-running the whole root cause analysis." What does "ended up" mean in this context?',
+          options: [
+            'She finished the work on time.',
+            'She did something that was not originally planned.',
+            'She gave up on the analysis.'
+          ],
+          correct: 1,
+          feedback: '✔️ "Ended up" indicates an unplanned outcome. She had to redo the analysis due to difficulties.'
+        }
+      ],
+      3: [
+        {
+          id: '3a',
+          title: 'Transfer – technical report',
+          description: 'Transform the informal phrase into a technical tone: "What happened was the client changed the spec at the last minute."',
+          free: true,
+          feedback: '📝 Suggestion: "The failure was first identified when the client changed the specification without prior notification." – aim for formal register.'
+        },
+        {
+          id: '3b',
+          title: 'Use of "tell" vs "say"',
+          description: 'In the audio she says: "They told me that the failure mechanism was stress corrosion cracking." Why "told" and not "said"?',
+          options: [
+            'Because "tell" requires an indirect object (me) – it’s correct.',
+            'Because "said" would only be used for direct speech.',
+            'Both are correct, but "told" is more formal.'
+          ],
+          correct: 0,
+          feedback: '✅ Perfect! "Tell someone" requires the object (me, him, etc.). "Say" does not take a direct personal object. E.g., She told me vs She said that...'
+        },
+        {
+          id: '3c',
+          title: 'Final transformation – conversation → report',
+          description: 'Rewrite the sentence below in a technical report style, using at least one chunk from section 7 of the material.\n\n"Long story short, the corrosion rate was higher than expected."',
+          free: true,
+          feedback: '💡 Example: "The findings indicate that the corrosion rate exceeded the predicted values, requiring immediate mitigation measures." – use "findings indicate" or "the report concludes".'
+        }
+      ]
+    };
+
+    // State
+    let currentLevel = 1;
+    const completedLevels = { 1: false, 2: false, 3: false };
+    const levelUnlocked = { 1: true, 2: false, 3: false };
+
+    // DOM refs
+    const taskContainer = document.getElementById('taskContainer');
+    const levelBtns = {
+      1: document.getElementById('level1Btn'),
+      2: document.getElementById('level2Btn'),
+      3: document.getElementById('level3Btn')
+    };
+    const currentLevelDisplay = document.getElementById('currentLevelDisplay');
+    const toggleTranscriptBtn = document.getElementById('toggleTranscriptBtn');
+    const transcriptContainer = document.getElementById('transcriptContainer');
+
+    // Transcript control
+    let transcriptVisible = false;
+    toggleTranscriptBtn.addEventListener('click', function() {
+      transcriptVisible = !transcriptVisible;
+      transcriptContainer.classList.toggle('hidden', !transcriptVisible);
+      this.textContent = transcriptVisible ? '📄 Hide transcript' : '📄 Show transcript';
+      this.setAttribute('aria-expanded', transcriptVisible);
+    });
+
+    // Render tasks
+    function renderTasks(level) {
+      const tasks = tasksData[level] || [];
+      if (!tasks.length) {
+        taskContainer.innerHTML = `<div class="task-item">No tasks for this level.</div>`;
+        return;
+      }
+
+      let html = `<div class="level-progress">Level ${level} – ${level === 1 ? 'Case Record (transcript available)' : level === 2 ? 'Investigation (only 3 excerpts)' : 'Final Report (audio only + free tasks)'}</div>`;
+      tasks.forEach((t, idx) => {
+        const optHtml = t.options ? t.options.map((opt, oi) => `
+          <div class="opt" data-optidx="${oi}">
+            <input type="radio" name="task_${t.id}" value="${oi}" id="opt_${t.id}_${oi}">
+            <label for="opt_${t.id}_${oi}">${opt}</label>
+          </div>
+        `).join('') : '';
+
+        const freeHtml = t.free ? `
+          <textarea class="free-textarea" placeholder="Write your answer here..." id="free_${t.id}"></textarea>
+        ` : '';
+
+        html += `
+          <div class="task-item" data-taskid="${t.id}">
+            <div class="task-title">${t.title} <span>${t.free ? '✍️ free' : '🔘 multiple choice'}</span></div>
+            <div>${t.description}</div>
+            ${!t.free ? `<div class="options">${optHtml}</div>` : ''}
+            ${freeHtml}
+            <div style="margin-top: 12px;">
+              <button class="btn-action check-task" data-taskid="${t.id}" data-level="${level}" data-free="${t.free ? 'true' : 'false'}">✅ Check answer</button>
+              <span class="feedback-area" id="feedback_${t.id}"></span>
+            </div>
+          </div>
+        `;
+      });
+      taskContainer.innerHTML = html;
+
+      // Attach event listeners
+      document.querySelectorAll('.check-task').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const taskId = this.dataset.taskid;
+          const level = parseInt(this.dataset.level);
+          const isFree = this.dataset.free === 'true';
+          const taskDef = tasksData[level].find(t => t.id === taskId);
+          if (!taskDef) return;
+
+          const feedbackEl = document.getElementById(`feedback_${taskId}`);
+          let isCorrect = false;
+          let msg = '';
+
+          if (isFree) {
+            // free task: always accepted, but give constructive feedback
+            const textarea = document.getElementById(`free_${taskId}`);
+            const val = textarea ? textarea.value.trim() : '';
+            if (val.length < 3) {
+              msg = '✍️ Write a bit more to practice the transformation. Use vocabulary from the material.';
+              isCorrect = false;
+            } else {
+              msg = taskDef.feedback || '✅ Good attempt! Remember to use chunks like "the findings indicate" or "the report concludes".';
+              isCorrect = true;
+            }
+          } else {
+            // multiple choice
+            const selected = document.querySelector(`input[name="task_${taskId}"]:checked`);
+            if (!selected) {
+              msg = '⚠️ Please select an option before checking.';
+              isCorrect = false;
+            } else {
+              const val = parseInt(selected.value);
+              isCorrect = (val === taskDef.correct);
+              msg = isCorrect ? (taskDef.feedback || '✅ Correct!') : `❌ Not quite. ${taskDef.feedback || 'Review the audio or transcript.'}`;
+            }
+          }
+
+          feedbackEl.innerHTML = `<div class="feedback ${isCorrect ? 'correct' : 'wrong'}">${msg}</div>`;
+
+          // Check if all tasks in the level are correctly answered
+          if (isCorrect) {
+            const allTasks = tasksData[level] || [];
+            let allDone = true;
+            for (let t of allTasks) {
+              const fb = document.getElementById(`feedback_${t.id}`);
+              if (!fb) continue;
+              const isFreeTask = t.free === true;
+              if (isFreeTask) {
+                const ta = document.getElementById(`free_${t.id}`);
+                if (!ta || ta.value.trim().length < 3) allDone = false;
+              } else {
+                const inner = fb.querySelector('.feedback');
+                if (!inner || !inner.classList.contains('correct')) allDone = false;
+              }
+            }
+            if (allDone) {
+              // unlock next level
+              const nextLevel = level + 1;
+              if (nextLevel <= 3) {
+                levelUnlocked[nextLevel] = true;
+                completedLevels[level] = true;
+                updateLevelButtons();
+                // show unlock message
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'feedback correct';
+                msgDiv.style.marginTop = '12px';
+                msgDiv.textContent = `🎉 Level ${level} completed! Level ${nextLevel} unlocked. Click the tab above.`;
+                taskContainer.appendChild(msgDiv);
+                setTimeout(() => {
+                  if (msgDiv.parentNode) msgDiv.remove();
+                }, 5000);
+              }
+            }
+          }
+        });
+      });
+    }
+
+    function updateLevelButtons() {
+      for (let lv = 1; lv <= 3; lv++) {
+        const btn = levelBtns[lv];
+        if (!btn) continue;
+        const unlocked = levelUnlocked[lv] || (lv === 1);
+        btn.disabled = !unlocked;
+        if (unlocked) {
+          btn.classList.remove('locked');
+          btn.innerHTML = lv === 1 ? '📋 Level 1 · Case Record' : lv === 2 ? '🔍 Level 2 · Investigation' : '📊 Level 3 · Final Report';
+        } else {
+          btn.classList.add('locked');
+          btn.innerHTML = (lv === 2 ? '🔒 Level 2 · Investigation' : '🔒 Level 3 · Final Report');
+        }
+        if (lv === currentLevel && unlocked) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      }
+      currentLevelDisplay.textContent = currentLevel;
+    }
+
+    // Switch level
+    function switchLevel(level) {
+      if (!levelUnlocked[level] && level !== 1) return;
+      currentLevel = level;
+      updateLevelButtons();
+      renderTasks(level);
+      // Adjust transcript visibility
+      if (level === 1) {
+        transcriptContainer.classList.remove('hidden');
+        toggleTranscriptBtn.textContent = '📄 Hide transcript';
+        transcriptVisible = true;
+        toggleTranscriptBtn.setAttribute('aria-expanded', 'true');
+        toggleTranscriptBtn.disabled = false;
+      } else {
+        transcriptContainer.classList.add('hidden');
+        transcriptVisible = false;
+        toggleTranscriptBtn.textContent = '📄 Transcript unavailable at this level';
+        toggleTranscriptBtn.setAttribute('aria-expanded', 'false');
+        toggleTranscriptBtn.disabled = true;
+        if (level === 2) {
+          transcriptContainer.innerHTML = `<strong>🔎 Evidence excerpts (Level 2):</strong><br>
+          • “the client changed the operating temperature”<br>
+          • “It turned out that the real issue was caused by a combination...”<br>
+          • “I ended up re-running the whole root cause analysis.”`;
+          transcriptContainer.classList.remove('hidden');
+          toggleTranscriptBtn.textContent = '📄 Excerpts (Level 2)';
+          transcriptVisible = true;
+          toggleTranscriptBtn.disabled = false;
+        } else if (level === 3) {
+          transcriptContainer.innerHTML = `<strong>🎧 Level 3 – Final Report:</strong> audio only.`;
+          transcriptContainer.classList.remove('hidden');
+          toggleTranscriptBtn.textContent = '📄 Audio only';
+          transcriptVisible = true;
+          toggleTranscriptBtn.disabled = true;
+        }
+      }
+    }
+
+    // Level button events
+    levelBtns[1].addEventListener('click', function() {
+      if (!this.disabled) switchLevel(1);
+    });
+    levelBtns[2].addEventListener('click', function() {
+      if (!this.disabled) switchLevel(2);
+    });
+    levelBtns[3].addEventListener('click', function() {
+      if (!this.disabled) switchLevel(3);
+    });
+
+    // Init
+    function init() {
+      levelUnlocked[1] = true;
+      updateLevelButtons();
+      switchLevel(1);
+    }
+    init();
+
+    // ----- DOWNLOAD BUTTON (full summary in English) -----
+    document.getElementById('downloadSummaryBtn').addEventListener('click', function() {
+      const summaryContent = `===== COMPLETE COURSE SUMMARY =====
+
+How to tell what happened clearly, naturally and professionally in English
+
+This guide brings together everything we worked on in the last classes — expressions, grammar corrections, idioms and the storytelling structure — and connects each point with a skill you use every day at work: turning a situation (a problem, a failure, a misunderstanding) into a clear explanation, whether in a conversation, a presentation or a technical report.
+
+As you are a metallurgical engineer specialised in corrosion, we have used examples related to your field — reports, RCA (root cause analysis), failure reports — so that English practice also becomes professional communication practice.
+
+## 1. What was covered this month
+
+The common thread of the classes was one thing: how to turn a confusing or informal situation into an organised and natural narrative in English. This appeared in four fronts:
+
+• Chunks / connectors to tell a story clearly ("the thing is...", "what happened was...", etc.)
+• Typical translation errors from Portuguese to English ("Brazilian Brain Detox")
+• Recurring grammar corrections in your sentences (reported speech, irregular verbs, agreement)
+• Idiomatic expressions to describe difficulties and reactions
+• A fixed structure — "From Conversation to Report" — to organise any situation in 6 parts
+
+## 2. Chunks to tell a situation
+
+These expressions are the skeleton of any account — personal or professional. Use them to structure your speech even before thinking about more specific vocabulary.
+
+Expression: The thing is...
+When to use: Explain the real point behind the situation
+Example: The thing is, I didn't have all the information yet.
+
+Expression: What happened was...
+When to use: Explain the situation more clearly
+Example: What happened was the client changed the spec at the last minute.
+
+Expression: I was supposed to..., but...
+When to use: Show that there was a plan, but something changed
+Example: I was supposed to send the report by Friday, but the data was incomplete.
+
+Expression: I ended up...
+When to use: Show that the final result was different from expected
+Example: I ended up re-running the whole analysis.
+
+Expression: Long story short...
+When to use: Summarise the story before concluding
+Example: Long story short, the corrosion rate was higher than expected.
+
+## 3. "Brazilian Brain Detox": literal translations to avoid
+
+Instead of (literal translation) → Use → Meaning in Portuguese
+take a doubt → clear something up / ask a question → tirar uma dúvida
+mark a meeting → schedule a meeting / set up a meeting → marcar uma reunião
+combine to do something → agree to do something / make plans to do something → combinar de fazer algo
+make sense for me → make sense to me → fazer sentido pra mim
+open a parenthesis → as a side note / by the way → abrir um parêntese
+stay without way → feel awkward → ficar sem jeito
+carry it to the personal side → take it personally → levar para o pessoal
+create expectation → get your hopes up / build expectations → criar expectativa
+make drama → make a big deal out of it → fazer drama
+resuming... → long story short... → resumindo
+
+## 4. Grammar corrections practised
+
+Common mistake: She said me that... → Correct: She told me... → Note: "say" does not take a direct personal object; use "tell someone"
+Common mistake: I was with a doubt → Correct: I had a doubt / I wasn't sure → "be with a doubt" does not exist in English
+Common mistake: I don't have how to know → Correct: I have no way of knowing / I can't know → literal translation of "não tenho como"
+Common mistake: I stayed nervous → Correct: I was / became nervous → "stay" describes permanence, not a change of state
+Common mistake: They doesn't explain → Correct: They don't explain → verb agreement: 3rd person plural uses "don't"
+Common mistake: I have misunderstood her (past) → Correct: I had misunderstood her → past perfect for an action before another in the past
+Common mistake: I'm used to work under pressure → Correct: I'm used to working under pressure → "used to" + verb-ing for current habit
+Common mistake: In the end, everything gave right → Correct: In the end, everything worked out → literal translation of "deu certo"
+
+## 5. Idiomatic expressions worked
+
+Expression: to fall flat on your face
+Meaning / Portuguese equivalent: quebrar a cara / falhar feio numa tentativa
+
+Expression: to beat your head against a brick wall
+Meaning / Portuguese equivalent: bater cabeça, se esforçar sem resultado
+
+Expression: to have difficulty + verb-ing
+Meaning / Portuguese equivalent: ter dificuldade para fazer algo
+
+Expression: different from
+Meaning / Portuguese equivalent: diferente de (não "different than/of")
+
+Expression: to make fun (of someone/something)
+Meaning / Portuguese equivalent: zoar, tirar sarro
+
+## 6. Structure "From Conversation to Report"
+
+This is the core tool of the month: a 6-question script that turns any situation — a misunderstanding, a failure, a technical problem — into an organised narrative, ready for a conversation, presentation or written report.
+
+Element: 1. Situation
+Guiding question: What happened?
+Support phrase: What happened was...
+
+Element: 2. Initial impression
+Guiding question: What did you think at first?
+Support phrase: At first, I thought...
+
+Element: 3. Real situation
+Guiding question: What did you discover later?
+Support phrase: It turned out that...
+
+Element: 4. Cause
+Guiding question: What caused the problem?
+Support phrase: The issue was caused by...
+
+Element: 5. Difficulty
+Guiding question: What made the situation difficult?
+Support phrase: What made it difficult was...
+
+Element: 6. Conclusion
+Guiding question: What became clear in the end?
+Support phrase: In the end, we realized that...
+
+Tip: this script works both for telling a personal story and for structuring a technical failure report — the logic is the same: situation → initial hypothesis → real cause → difficulty → conclusion.
+
+## 7. Applied vocabulary: from conversation to technical report
+
+Here is the bridge between the everyday English worked in class and the technical vocabulary you use as a corrosion engineer. The structure is the same — only the register changes.
+
+Everyday phrase (class): What happened was...
+Technical report version: The failure was first identified during / The event occurred when...
+
+Everyday phrase (class): At first, I thought...
+Technical report version: The initial assessment suggested... / It was initially assumed that...
+
+Everyday phrase (class): It turned out that...
+Technical report version: Further investigation revealed that... / Subsequent analysis showed that...
+
+Everyday phrase (class): The issue was caused by...
+Technical report version: The root cause was identified as... / The failure was attributed to...
+
+Everyday phrase (class): What made it difficult was...
+Technical report version: A key challenge in the analysis was... / Limited data made it difficult to...
+
+Everyday phrase (class): In the end, we realized that...
+Technical report version: The findings indicate that... / The report concludes that...
+
+## Support vocabulary — corrosion and failure engineering
+
+Term: root cause analysis (RCA)
+Use: análise de causa raiz
+
+Term: pitting corrosion
+Use: corrosão por pite
+
+Term: corrosion rate
+Use: taxa de corrosão
+
+Term: mitigation measures
+Use: medidas de mitigação
+
+Term: findings
+Use: constatações / achados do relatório
+
+Term: non-conformance
+Use: não conformidade
+
+Term: failure mechanism
+Use: mecanismo de falha
+
+Term: to escalate an issue
+Use: escalar um problema
+
+## 8. Checklist — what to keep in mind
+
+Before telling a situation, presenting a case or writing a report in English, go through this checklist:
+
+☐ Did I start with a clear chunk phrase ("what happened was..." / "the thing is...") instead of jumping straight into loose details?
+☐ Did I avoid translating expressions from Portuguese literally (review the "Brazilian Brain Detox" list)?
+☐ Did I use "tell someone" instead of "say me", and check verb agreement (don't / doesn't)?
+☐ Did I clearly separate: what I thought at first x what I discovered later ("at first I thought" / "it turned out that")?
+☐ Did I explain the cause and the difficulty separately, not all together?
+☐ Did I close with a clear conclusion ("in the end, we realized that..." / "the report concludes that...")?
+☐ If it's a technical report, did I change the colloquial tone to a more formal tone (see table in section 7)?
+☐ Did I read the sentence aloud: does it sound like something a native speaker would say, or is it a literal translation from Portuguese?
+
+## 9. Practice suggestion for next month
+
+• Choose 1 real situation from the week (a misunderstanding, a failure, a decision) and narrate it aloud using the 6-part structure.
+• Take an already written technical report and rewrite 2-3 key sentences using the expressions from section 7.
+• Keep a personal list of "literal translations I still make" and review it before important meetings.
+• Practice telling the same situation in two ways: informal (to a colleague) and formal (for a report or presentation).
+
+===== END OF SUMMARY =====`;
+
+      const blob = new Blob([summaryContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'complete_course_summary.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  })();
+</script>
+</body>
+</html>
